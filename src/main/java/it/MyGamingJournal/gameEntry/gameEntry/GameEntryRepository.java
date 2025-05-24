@@ -26,7 +26,7 @@ public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
     int countByGame(Game game);
 
     @Query("SELECT AVG(e.personalRating) FROM GameEntry e WHERE e.game = :game AND e.personalRating > 0")
-    Double findAverageRatingByGame(@Param("game") Game game);
+    Double findRatingByGame(@Param("game") Game game);
 
 
     GameEntry findByUserAndGameId(AppUser user, long idGame);

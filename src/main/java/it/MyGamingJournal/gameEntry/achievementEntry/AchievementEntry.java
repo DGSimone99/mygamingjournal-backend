@@ -19,7 +19,7 @@ public class AchievementEntry {
     private Long achievementId;
     @Column(length = 150)
     private String name;
-    @Column(length = 250)
+    @Column(length = 1000)
     private String description;
     @Column(length = 512)
     private String image;

@@ -41,10 +41,10 @@ public class Game {
 
 
     private LocalDate released;
-    private Integer rating;
+    private Integer metacritic;
     private int added;
     private int achievementsCount;
-    private double averageRating;
+    private double rating;
 
 
     @ElementCollection
@@ -86,10 +86,13 @@ public class Game {
     @CollectionTable(name="game_modes", joinColumns = @JoinColumn(name = "game_id"))
     private List<String> gameModes = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "parent_games", joinColumns = @JoinColumn(name = "game_id"))
+    private List<ParentGame> parentGames = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "related_games", joinColumns = @JoinColumn(name = "game_id"))
-    private List<RelatedGames> relatedGames = new ArrayList<>();
+    private List<RelatedGame> relatedGames = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "dlc_list", joinColumns = @JoinColumn(name = "game_id"))
@@ -108,7 +111,7 @@ public class Game {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class RelatedGames {
+    public static class RelatedGame {
         private Long id;
         private String name;
         private String slug;
@@ -123,6 +126,20 @@ public class Game {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Dlc {
+        private Long id;
+        private String name;
+        private String slug;
+        private LocalDate released;
+        private String backgroundImage;
+
+        private List<String> platforms = new ArrayList<>();
+    }
+
+    @Embeddable
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ParentGame {
         private Long id;
         private String name;
         private String slug;

@@ -60,7 +60,7 @@ public class GameEntryService {
             gameEntry.setGameSlug(game.getSlug());
             gameEntry.setUser(user);
             gameEntry.setHoursPlayed(hoursPlayed);
-            gameEntry.setPersonalRating(personalRating);
+            gameEntry.setPersonalRating(Math.round(personalRating * 10.0) / 10.0);
             gameEntry.setStatus(status);
             gameEntry.setCompletionMode(completionMode);
             gameEntry.setNotes(notes);
@@ -85,10 +85,10 @@ public class GameEntryService {
         GameEntry savedEntry = gameEntryRepository.save(gameEntry);
 
         int actualCount = gameEntryRepository.countByGame(game);
-        Double average = gameEntryRepository.findAverageRatingByGame(game);
+        Double average = gameEntryRepository.findRatingByGame(game);
 
         game.setAdded(actualCount);
-        game.setAverageRating(average != null ? average : 0.0);
+        game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
 
@@ -104,17 +104,17 @@ public class GameEntryService {
 
         Game game = gameService.getDetailsGame(idGame);
         gameEntry.setHoursPlayed(hoursPlayed);
-        gameEntry.setPersonalRating(personalRating);
+        gameEntry.setPersonalRating(Math.round(personalRating * 10.0) / 10.0);
         gameEntry.setStatus(status);
         gameEntry.setCompletionMode(completionMode);
         gameEntry.setNotes(notes);
         GameEntry savedEntry = gameEntryRepository.save(gameEntry);
 
         int actualCount = gameEntryRepository.countByGame(game);
-        Double average = gameEntryRepository.findAverageRatingByGame(game);
+        Double average = gameEntryRepository.findRatingByGame(game);
 
         game.setAdded(actualCount);
-        game.setAverageRating(average != null ? average : 0.0);
+        game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
 

@@ -10,7 +10,7 @@ public class GameMapper {
         gameResponse.setSlug(game.getSlug());
         gameResponse.setBackgroundImage(game.getBackgroundImage());
         gameResponse.setReleased(game.getReleased());
-        gameResponse.setMetacritic(game.getRating());
+        gameResponse.setRating(game.getRating());
         gameResponse.setParentPlatforms(game.getParentPlatforms());
         gameResponse.setDevelopers(game.getDevelopers());
         return gameResponse;

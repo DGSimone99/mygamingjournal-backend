@@ -35,8 +35,13 @@ public class AppUserService {
             throw new EntityExistsException("Username already exists");
         }
 
+        if (appUserRepository.existsByEmail(email)) {
+            throw new EntityExistsException("Email already exists");
+        }
+
         AppUser appUser = new AppUser();
         appUser.setUsername(username);
+        appUser.setEmail(email);
         appUser.setPassword(passwordEncoder.encode(password));
         appUser.setRoles(roles);
         appUserRepository.save(appUser);
@@ -58,12 +63,30 @@ public class AppUserService {
     public AppUser loadUserByUsername(String username)  {
         AppUser appUser = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
-
-
         return appUser;
     }
 
     public Optional<AppUser> findByUsername(String username) {
         return appUserRepository.findByUsername(username);
+    }
+
+    public static AppUserResponse fromEntity(AppUser user) {
+        AppUserResponse appUserResponse = new AppUserResponse();
+        appUserResponse.id = user.getId();
+        appUserResponse.username = user.getUsername();
+        appUserResponse.displayName = user.getDisplayName();
+        appUserResponse.avatarUrl = user.getAvatarUrl();
+        appUserResponse.bio = user.getBio();
+        appUserResponse.language = user.getLanguage();
+        appUserResponse.createdAt = user.getCreatedAt();
+        appUserResponse.isOnline = user.getIsOnline();
+
+        appUserResponse.totalGames = user.getTotalGames();
+        appUserResponse.totalHoursPlayed = user.getTotalHoursPlayed();
+        appUserResponse.completedGamesCount = user.getCompletedGamesCount();
+        appUserResponse.wishlistedGamesCount = user.getWishlistedGamesCount();
+        appUserResponse.unlockedAchievements = user.getUnlockedAchievements();
+
+        return appUserResponse;
     }
 }

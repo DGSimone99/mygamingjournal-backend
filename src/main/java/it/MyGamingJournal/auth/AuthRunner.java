@@ -23,16 +23,9 @@ public class AuthRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Creazione dell'utente admin se non esiste
-        Optional<AppUser> adminUser = appUserService.findByUsername("admin");
+        Optional<AppUser> adminUser = appUserService.findByUsername("AdminSimone");
         if (adminUser.isEmpty()) {
-            appUserService.registerUser("admin", "string","adminpwd", Set.of(Role.ROLE_ADMIN));
-        }
-
-        // Creazione dell'utente user se non esiste
-        Optional<AppUser> normalUser = appUserService.findByUsername("user");
-        if (normalUser.isEmpty()) {
-            appUserService.registerUser("string", "string","string", Set.of(Role.ROLE_USER));
+            appUserService.registerUser("AdminSimone", "simone.digiorgio99@gmail.com","Adminpwd99", Set.of(Role.ROLE_ADMIN, Role.ROLE_USER));
         }
     }
 }

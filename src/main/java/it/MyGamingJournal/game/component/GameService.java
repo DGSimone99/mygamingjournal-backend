@@ -60,6 +60,6 @@ public class GameService {
 
     @Transactional
     public void updateGameStats(Game game) {
-        gameRepository.updateStatsById(game.getId(), game.getAdded(), game.getAverageRating());
+        gameRepository.updateStatsById(game.getId(), game.getAdded(), game.getRating());
     }
 }

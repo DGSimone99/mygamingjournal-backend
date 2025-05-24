@@ -4,6 +4,7 @@ package it.MyGamingJournal.rawg;
 import it.MyGamingJournal.game.entity.Achievement;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.game.entity.DeveloperMember;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,42 +12,43 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RawgGameMapper {
-    public static Game toEntity(RawgGameDto dto, RawgDetailsData details, List<Game.RelatedGames> relatedGames, List<Game.Dlc> dlc, List<Achievement> achievements, List<DeveloperMember> developmentTeam) {
+    public static Game toEntity(RawgGameDto rawgGameDto, RawgDetailsData details, List<Game.ParentGame> parentGames, List<Game.RelatedGame> relatedGames, List<Game.Dlc> dlc, List<Achievement> achievements, List<DeveloperMember> developmentTeam) {
         Game game = new Game();
 
-        game.setId(dto.getId());
-        game.setName(dto.getName());
-        game.setSlug(dto.getSlug());
-        game.setBackgroundImage(dto.getBackgroundImage());
+        game.setId(rawgGameDto.getId());
+        game.setName(rawgGameDto.getName());
+        game.setSlug(rawgGameDto.getSlug());
+        game.setBackgroundImage(rawgGameDto.getBackgroundImage());
 
         try {
-            game.setReleased(LocalDate.parse(dto.getReleased()));
+            game.setReleased(LocalDate.parse(rawgGameDto.getReleased()));
         } catch (Exception e) {
             game.setReleased(null);
         }
 
 
-        game.setRating(dto.getMetacritic());
+        game.setMetacritic(rawgGameDto.getMetacritic());
 
-        List<String> genres = dto.getGenres().stream()
+
+        List<String> genres = rawgGameDto.getGenres().stream()
                 .map(RawgGameDto.Genre::getName)
                 .collect(Collectors.toList());
         game.setGenres(genres);
 
-        List<String> platforms = dto.getParentPlatforms().stream()
+        List<String> platforms = rawgGameDto.getParentPlatforms().stream()
                 .map(platform -> platform.getPlatform().getName())
                 .collect(Collectors.toList());
         game.setParentPlatforms(platforms);
 
-        List<String> screenshots = dto.getScreenshots().stream().map(RawgGameDto.ShortScreenshot::getImage).collect(Collectors.toList());
+        List<String> screenshots = rawgGameDto.getScreenshots().stream().map(RawgGameDto.ShortScreenshot::getImage).collect(Collectors.toList());
         game.setScreenshots(screenshots);
 
-        List<String> allTags = dto.getTags().stream()
+        List<String> allTags = rawgGameDto.getTags().stream()
                 .map(RawgGameDto.Tags::getName)
                 .filter(tag -> !tag.matches(".*\\p{IsCyrillic}.*"))
                 .collect(Collectors.toList());
 
-        List<String> modes = dto.getTags().stream()
+        List<String> modes = rawgGameDto.getTags().stream()
                 .map(RawgGameDto.Tags::getName)
                 .filter(tag -> tag.equalsIgnoreCase("Singleplayer") || tag.equalsIgnoreCase("Multiplayer"))
                 .collect(Collectors.toList());
@@ -58,8 +60,8 @@ public class RawgGameMapper {
         game.setGameModes(modes);
         game.setTags(tags);
 
-        if (dto.getEsrbRating() != null) {
-            game.setEsrbRating(dto.getEsrbRating().getName());
+        if (rawgGameDto.getEsrbRating() != null) {
+            game.setEsrbRating(rawgGameDto.getEsrbRating().getName());
         } else {
             game.setEsrbRating("Not Rated");
         }
@@ -105,6 +107,7 @@ public class RawgGameMapper {
         game.setRedditUrl(details.getRedditUrl());
         game.setDescription(details.getDescription_raw());
         game.setRelatedGames(relatedGames);
+        game.setParentGames(parentGames);
         game.setDlcList(dlc);
 
         return game;

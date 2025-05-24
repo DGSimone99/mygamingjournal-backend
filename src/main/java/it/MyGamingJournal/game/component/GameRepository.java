@@ -36,8 +36,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Page<Game> findByTag(@Param("tag") String tag, Pageable pageable);
 
     @Query("""
-    SELECT DISTINCT g FROM Game g
-    LEFT JOIN g.tags tag
+    SELECT g FROM Game g
     LEFT JOIN g.developers dev
     LEFT JOIN g.publishers pub
     LEFT JOIN g.genres genre
@@ -45,23 +44,20 @@ public interface GameRepository extends JpaRepository<Game, Long> {
        OR LOWER(dev) LIKE LOWER(CONCAT('%', :query, '%'))
        OR LOWER(pub) LIKE LOWER(CONCAT('%', :query, '%'))
        OR LOWER(genre) LIKE LOWER(CONCAT('%', :query, '%'))
-       OR LOWER(tag) LIKE LOWER(CONCAT('%', :query, '%'))
     ORDER BY
        CASE
            WHEN LOWER(g.name) LIKE CONCAT('%', LOWER(:query), '%') THEN 1
            WHEN LOWER(dev) LIKE CONCAT('%', LOWER(:query), '%') THEN 2
            WHEN LOWER(pub) LIKE CONCAT('%', LOWER(:query), '%') THEN 3
            WHEN LOWER(genre) LIKE CONCAT('%', LOWER(:query), '%') THEN 4
-           WHEN LOWER(tag) LIKE CONCAT('%', LOWER(:query), '%') THEN 5
-           ELSE 6
+           ELSE 5
        END
     """)
-
     Page<Game> findByAllFields(@Param("query") String query, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE Game g SET g.added = :added, g.averageRating = :averageRating WHERE g.id = :id")
+    @Query("UPDATE Game g SET g.added = :added, g.rating = :rating WHERE g.id = :id")
     void updateStatsById(@Param("id") Long id,
                          @Param("added") int added,
-                         @Param("averageRating") double averageRating);
+                         @Param("rating") double rating);
 }

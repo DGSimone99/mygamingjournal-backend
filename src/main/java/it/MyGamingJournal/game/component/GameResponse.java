@@ -12,7 +12,7 @@ public class GameResponse {
     private String slug;
     private String backgroundImage;
     private LocalDate released;
-    private Integer metacritic;
+    private Double rating;
     private List<String> parentPlatforms;
     private List<String> developers;
 }

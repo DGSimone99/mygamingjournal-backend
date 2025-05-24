@@ -1,6 +1,8 @@
 package it.MyGamingJournal.auth.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.MyGamingJournal.gameEntry.achievementEntry.AchievementEntry;
+import it.MyGamingJournal.gameEntry.enums.GameStatus;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,17 +27,15 @@ public class AppUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(nullable = false, unique = true)
     private String username;
 
-    /*@Column(unique = true, nullable = false)
-    private String email;*/
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Column(nullable = false)
     @ToString.Exclude
     private String password;
-
 
     @Column(name = "display_name")
     private String displayName;
@@ -48,7 +48,6 @@ public class AppUser implements UserDetails {
 
     private List<String> language = new ArrayList<>();
 
-
     @Column(name = "is_online")
     private Boolean isOnline;
 
@@ -60,11 +59,6 @@ public class AppUser implements UserDetails {
         this.createdAt = LocalDate.now();
     }
 
-    @Column(name = "games_completed")
-    private Double gamesCompleted;
-    @Column(name = "total_hours_played")
-    private Double totalHoursPlayed;
-
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "user_friends", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "friend_id"))
@@ -74,6 +68,35 @@ public class AppUser implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameEntry> gameEntries;
 
+    public int getTotalGames() {
+        return gameEntries.size();
+    }
+
+    public double getTotalHoursPlayed() {
+        double total = gameEntries.stream()
+                .mapToDouble(GameEntry::getHoursPlayed)
+                .sum();
+        return Math.round(total * 10.0) / 10.0;
+    }
+
+    public long getCompletedGamesCount() {
+        return gameEntries.stream()
+                .filter(entry -> entry.getStatus() == GameStatus.COMPLETED)
+                .count();
+    }
+
+    public long getWishlistedGamesCount() {
+        return gameEntries.stream()
+                .filter(entry -> entry.getStatus() == GameStatus.WISHLIST)
+                .count();
+    }
+
+    public long getUnlockedAchievements() {
+        return gameEntries.stream()
+                .flatMap(entry -> entry.getAchievements().stream())
+                .filter(AchievementEntry::isUnlocked)
+                .count();
+    }
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)

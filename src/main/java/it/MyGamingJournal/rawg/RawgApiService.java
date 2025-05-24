@@ -32,9 +32,9 @@ public class RawgApiService {
     public void fetchAndSaveGames(int totalPages) {
         for (int page = 1; page <= totalPages; page++) {
             String url = "https://api.rawg.io/api/games?page=" + page +
-                    "&page_size=1" +
+                    "&page_size=20" +
                     "&ordering=-added" +
-                    "&dates=2020-05-29,2025-05-29&key=" + rawgApiKey;
+                    "&dates=2020-05-29,2026-05-29&key=" + rawgApiKey;
 
 
             RawgGameListResponse rawgGameListReponse = restTemplate.getForObject(url, RawgGameListResponse.class);
@@ -46,9 +46,22 @@ public class RawgApiService {
                             RawgDetailsData data = fetchDevelopersById(dto.getId());
                             List<Achievement> achievements = fetchAllAchievementsForGame(dto.getId());
                             List<DeveloperMember> developmentTeam = fetchDeveloperTeamById(dto.getId());
-                            List<Game.RelatedGames> relatedGames = fetchRelatedById(dto.getId())
+                            List<Game.ParentGame> parentGames = fetchParentById(dto.getId())
                                     .stream()
-                                    .map(relatedGame -> new Game.RelatedGames(
+                                    .map(parentGame -> new Game.ParentGame(
+                                            parentGame.getId(),
+                                            parentGame.getName(),
+                                            parentGame.getSlug(),
+                                            parentGame.getReleased(),
+                                            parentGame.getBackgroundImage(),
+                                            parentGame.getPlatforms().stream()
+                                                    .map(pw -> pw.getPlatform().getName())  // oppure getSlug() o getId()
+                                                    .collect(Collectors.toList())
+                                    ))
+                                    .collect(Collectors.toList());
+                            List<Game.RelatedGame> relatedGames = fetchRelatedById(dto.getId())
+                                    .stream()
+                                    .map(relatedGame -> new Game.RelatedGame(
                                             relatedGame.getId(),
                                             relatedGame.getName(),
                                             relatedGame.getSlug(),
@@ -72,7 +85,7 @@ public class RawgApiService {
                                                     .collect(Collectors.toList())
                                     ))
                                     .collect(Collectors.toList());
-                            return RawgGameMapper.toEntity(dto, data, relatedGames, dlc, achievements, developmentTeam);
+                            return RawgGameMapper.toEntity(dto, data, parentGames, relatedGames, dlc, achievements, developmentTeam);
                         })
                         .collect(Collectors.toList());
 
@@ -121,6 +134,16 @@ public class RawgApiService {
         }
 
         return new ArrayList<>(achievementMap.values());
+    }
+
+    private List<RawgRelatedGamesResponse.RelatedGame> fetchParentById(Long gameId) {
+        String url = "https://api.rawg.io/api/games/" + gameId + "/parent-games?key=" + rawgApiKey;
+        RawgRelatedGamesResponse parentGame = restTemplate.getForObject(url, RawgRelatedGamesResponse.class);
+
+        if(parentGame != null) {
+            return parentGame.getResults();
+        }
+        return List.of();
     }
 
     private List<RawgRelatedGamesResponse.RelatedGame> fetchRelatedById(Long gameId) {

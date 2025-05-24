@@ -16,7 +16,7 @@ public class Achievement {
 
     @Column(length = 100)
     private String name;
-    @Column(length = 200)
+    @Column(length = 1000)
     private String description;
     @Column(length = 512)
     private String image;
