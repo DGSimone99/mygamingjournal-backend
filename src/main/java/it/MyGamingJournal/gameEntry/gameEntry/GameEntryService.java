@@ -45,9 +45,24 @@ public class GameEntryService {
         return gameEntries;
     }
 
-    public GameEntry addGameEntry(long idGame, AppUser user, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
+    public GameEntry getGameEntry(AppUser user, long idGame) {
+        GameEntry gameEntry = gameEntryRepository.findByUserAndGameId(user, idGame);
+        if (gameEntry == null) {
+            throw new GameNotFoundException(idGame);
+        }
+        return gameEntry;
+    }
+
+    public List <GameEntryResponse> getGameEntryResponse(AppUser user) {
+        List<GameEntry> gameEntries = getGamesByUser(user);
+        return gameEntries.stream()
+                .map(gameEntry -> new GameEntryResponse(gameEntry.getGame().getId()))
+                .toList();
+    }
+
+    public GameEntry addGameEntry(AppUser user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
             boolean alreadyExists = gameEntryRepository.findByUser(user).stream()
-                    .anyMatch(entry -> entry.getGameEntryId().equals(idGame));
+                    .anyMatch(entry -> entry.getGame().getId().equals(idGame));
             if (alreadyExists) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Game already in user's list");
             }
@@ -55,7 +70,7 @@ public class GameEntryService {
             Game game = gameService.getDetailsGame(idGame);
             GameEntry gameEntry = new GameEntry();
             gameEntry.setGame(game);
-            gameEntry.setGameEntryId(idGame);
+            gameEntry.setGameEntryId(game.getId());
             gameEntry.setGameName(game.getName());
             gameEntry.setGameSlug(game.getSlug());
             gameEntry.setUser(user);
@@ -95,12 +110,8 @@ public class GameEntryService {
         return savedEntry;
     }
 
-    public GameEntry updateGameEntry(long idGame, AppUser user, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
-        GameEntry gameEntry = gameEntryRepository.findByUserAndGameId(user, idGame);
-
-        if (gameEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Gioco non presente nella tua lista");
-        }
+    public GameEntry updateGameEntry(AppUser user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
+        GameEntry gameEntry = getGameEntry(user, idGame);
 
         Game game = gameService.getDetailsGame(idGame);
         gameEntry.setHoursPlayed(hoursPlayed);
@@ -121,18 +132,13 @@ public class GameEntryService {
         return savedEntry;
     }
 
-    public void deleteGameEntry(long idGame, AppUser user) {
-        GameEntry gameEntry = gameEntryRepository.findByUserAndGameId(user, idGame);
-        if (gameEntry == null) {
-            throw new GameNotFoundException(idGame);
-        }
+    public void deleteGameEntry(AppUser user, long idGame) {
+        GameEntry gameEntry = getGameEntry(user, idGame);
         gameEntryRepository.delete(gameEntry);
     }
 
-    public void setAvailability(GameEntry gameEntry, Set<String> languages, AppUser currentUser) {
-        if (!gameEntry.getUser().equals(currentUser)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not own this game entry");
-        }
+    public void setAvailability(AppUser user, GameEntry gameEntry, Set<String> languages) {
+        getGameEntry(user, gameEntry.getGame().getId());
         gameEntry.setAvailableLanguages(languages != null ? languages : new HashSet<>());
         gameEntry.setAvailableToPlay(true);
         gameEntry.setAvailableUntil(LocalDate.now().plusWeeks(2));

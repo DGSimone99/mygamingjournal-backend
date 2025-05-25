@@ -29,6 +29,7 @@ public class GameEntry {
 
     @Column(name = "game_entry_id")
     private Long gameEntryId;
+
     @Column(name = "game_name", length = 255)
     private String gameName;
     @Column(name = "game_slug", length = 255)

@@ -28,6 +28,11 @@ public class GameEntryController {
         return gameEntryService.getGamesByUser(user);
     }
 
+    @GetMapping("/ids")
+    public List <GameEntryResponse> getGameEntryResponse(@AuthenticationPrincipal AppUser user) {
+        return gameEntryService.getGameEntryResponse(user);
+    }
+
     @PostMapping
     public GameEntry addGameEntry(@AuthenticationPrincipal AppUser user,
                                   @RequestParam long idGame,
@@ -40,8 +45,8 @@ public class GameEntryController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
         return gameEntryService.addGameEntry(
-                idGame,
                 user,
+                idGame,
                 hoursPlayed != null ? hoursPlayed : 0,
                 personalRating != null ? personalRating : 0.0,
                 status != null ? status : GameStatus.PLAYING,
@@ -61,8 +66,8 @@ public class GameEntryController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
         return gameEntryService.updateGameEntry(
-                idGame,
                 user,
+                idGame,
                 hoursPlayed != null ? hoursPlayed : 0,
                 personalRating != null ? personalRating : 0.0,
                 status != null ? status : GameStatus.PLAYING,
@@ -72,6 +77,6 @@ public class GameEntryController {
 
     @DeleteMapping
     public void deleteGameEntry(@AuthenticationPrincipal AppUser user, @RequestParam long idGame) {
-        gameEntryService.deleteGameEntry(idGame, user);
+        gameEntryService.deleteGameEntry(user, idGame);
     }
 }
