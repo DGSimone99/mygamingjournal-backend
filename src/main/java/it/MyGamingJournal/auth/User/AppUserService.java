@@ -1,6 +1,8 @@
 package it.MyGamingJournal.auth.User;
 
 import it.MyGamingJournal.auth.JwtTokenUtil;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +33,9 @@ public class AppUserService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
+    private GameEntryRepository gameEntryRepository;
+
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
     public void registerUser(String username, String email, String password, Set<Role> roles) {
@@ -41,6 +49,8 @@ public class AppUserService {
 
         AppUser appUser = new AppUser();
         appUser.setUsername(username);
+        appUser.setDisplayName(username);
+        appUser.setLanguage(List.of(Locale.getDefault().getLanguage()));
         appUser.setEmail(email);
         appUser.setPassword(passwordEncoder.encode(password));
         appUser.setRoles(roles);
@@ -74,7 +84,8 @@ public class AppUserService {
         AppUserResponse appUserResponse = new AppUserResponse();
         appUserResponse.id = user.getId();
         appUserResponse.username = user.getUsername();
-        appUserResponse.displayName = user.getDisplayName();
+        appUserResponse.email = user.getEmail();
+        appUserResponse.displayName = user.getUsername();
         appUserResponse.avatarUrl = user.getAvatarUrl();
         appUserResponse.bio = user.getBio();
         appUserResponse.language = user.getLanguage();
@@ -88,5 +99,15 @@ public class AppUserService {
         appUserResponse.unlockedAchievements = user.getUnlockedAchievements();
 
         return appUserResponse;
+    }
+
+    public AppUser getUserWithGameStats(Long userId) {
+        AppUser user = appUserRepository.findByIdWithGameEntries(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<GameEntry> initializedEntries = gameEntryRepository.findAllWithAchievements(user.getGameEntries());
+        user.setGameEntries(initializedEntries);
+
+        return user;
     }
 }

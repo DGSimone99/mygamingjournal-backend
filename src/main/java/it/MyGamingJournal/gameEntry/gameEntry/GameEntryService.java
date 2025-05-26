@@ -100,7 +100,7 @@ public class GameEntryService {
         GameEntry savedEntry = gameEntryRepository.save(gameEntry);
 
         int actualCount = gameEntryRepository.countByGame(game);
-        Double average = gameEntryRepository.findRatingByGame(game);
+        Double average = gameEntryRepository.averageRatingByGame(game);
 
         game.setAdded(actualCount);
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
@@ -122,7 +122,7 @@ public class GameEntryService {
         GameEntry savedEntry = gameEntryRepository.save(gameEntry);
 
         int actualCount = gameEntryRepository.countByGame(game);
-        Double average = gameEntryRepository.findRatingByGame(game);
+        Double average = gameEntryRepository.averageRatingByGame(game);
 
         game.setAdded(actualCount);
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
@@ -132,9 +132,10 @@ public class GameEntryService {
         return savedEntry;
     }
 
-    public void deleteGameEntry(AppUser user, long idGame) {
-        GameEntry gameEntry = getGameEntry(user, idGame);
+    public void deleteGameEntry(AppUser user, long id) {
+        GameEntry gameEntry = gameEntryRepository.findByUserAndId(user, id);
         gameEntryRepository.delete(gameEntry);
+        gameService.updateGameStats(gameEntry.getGame());
     }
 
     public void setAvailability(AppUser user, GameEntry gameEntry, Set<String> languages) {

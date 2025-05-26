@@ -10,6 +10,7 @@ public class AppUserResponse {
    public Long id;
    public String username;
    public String displayName;
+   public String email;
    public String avatarUrl;
    public String bio;
    public List<String> language;

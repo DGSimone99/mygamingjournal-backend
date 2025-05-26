@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,7 +34,9 @@ public class AppUserController {
 
     @GetMapping("/me")
     public AppUserResponse getCurrentUser(@AuthenticationPrincipal AppUser user) {
-        return AppUserService.fromEntity(user);
+        AppUser userDetails = appUserService.getUserWithGameStats(user.getId());
+        AppUserResponse currentUser = AppUserService.fromEntity(userDetails);
+        return currentUser;
     }
 
     @PutMapping
@@ -41,9 +44,7 @@ public class AppUserController {
     public void updateCurrentUser(@AuthenticationPrincipal AppUser user,
                                   @RequestBody AppUserRequest appUserRequest) {
         user.setDisplayName(appUserRequest.getDisplayName());
-        user.setAvatarUrl(appUserRequest.getAvatarUrl());
         user.setBio(appUserRequest.getBio());
-        user.setLanguage(appUserRequest.getLanguage());
 
         appUserRepository.save(user);
     }

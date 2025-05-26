@@ -76,7 +76,7 @@ public class GameEntryController {
     }
 
     @DeleteMapping
-    public void deleteGameEntry(@AuthenticationPrincipal AppUser user, @RequestParam long idGame) {
-        gameEntryService.deleteGameEntry(user, idGame);
+    public void deleteGameEntry(@AuthenticationPrincipal AppUser user, @RequestParam long id) {
+        gameEntryService.deleteGameEntry(user, id);
     }
 }

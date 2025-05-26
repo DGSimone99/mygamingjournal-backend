@@ -2,6 +2,7 @@ package it.MyGamingJournal.game.component;
 
 import it.MyGamingJournal.exceptions.GameNotFoundException;
 import it.MyGamingJournal.game.entity.Game;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,9 @@ public class GameService {
 
     @Autowired
     GameRepository gameRepository;
+
+    @Autowired
+    GameEntryRepository gameEntryRepository;
 
     public Game getDetailsGame(Long id) {
         return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
@@ -60,6 +64,9 @@ public class GameService {
 
     @Transactional
     public void updateGameStats(Game game) {
-        gameRepository.updateStatsById(game.getId(), game.getAdded(), game.getRating());
+        int added = gameEntryRepository.countByGame(game);
+        Double rating = gameEntryRepository.averageRatingByGame(game);
+        if (rating == null) rating = 0.0;
+        gameRepository.updateStatsById(game.getId(), added, rating);
     }
 }

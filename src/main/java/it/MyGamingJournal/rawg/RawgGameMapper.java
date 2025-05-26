@@ -50,11 +50,10 @@ public class RawgGameMapper {
 
         List<String> modes = rawgGameDto.getTags().stream()
                 .map(RawgGameDto.Tags::getName)
-                .filter(tag -> tag.equalsIgnoreCase("Singleplayer") || tag.equalsIgnoreCase("Multiplayer"))
+                .filter(tag -> tag.equalsIgnoreCase("Singleplayer") || tag.equalsIgnoreCase("Multiplayer")  || tag.equalsIgnoreCase("Online multiplayer")  || tag.equalsIgnoreCase("Cross-Platform Multiplayer") )
                 .collect(Collectors.toList());
 
         List<String> tags = allTags.stream()
-                .filter(tag -> !modes.contains(tag))
                 .toList();
 
         game.setGameModes(modes);

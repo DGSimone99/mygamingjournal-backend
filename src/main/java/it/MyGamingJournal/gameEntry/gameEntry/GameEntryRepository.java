@@ -23,11 +23,16 @@ public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
 
     List<GameEntry> findByAvailableToPlayTrueAndAvailableUntilBefore(LocalDate date);
 
-    int countByGame(Game game);
-
-    @Query("SELECT AVG(e.personalRating) FROM GameEntry e WHERE e.game = :game AND e.personalRating > 0")
-    Double findRatingByGame(@Param("game") Game game);
-
-
     GameEntry findByUserAndGameId(AppUser user, long idGame);
+
+    GameEntry findByUserAndId(AppUser user, long id);
+
+    @Query("SELECT ge FROM GameEntry ge LEFT JOIN FETCH ge.achievements WHERE ge IN :entries")
+    List<GameEntry> findAllWithAchievements(@Param("entries") List<GameEntry> entries);
+
+    @Query("SELECT COUNT(ge) FROM GameEntry ge WHERE ge.game = :game")
+    int countByGame(@Param("game") Game game);
+
+    @Query("SELECT AVG(ge.personalRating) FROM GameEntry ge WHERE ge.game = :game  AND ge.personalRating > 0")
+    Double averageRatingByGame(@Param("game") Game game);
 }

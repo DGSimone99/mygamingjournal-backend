@@ -6,8 +6,7 @@ import java.util.List;
 
 @Data
 public class AppUserRequest {
+    private String username;
     private String displayName;
-    private String avatarUrl;
     private String bio;
-    private List<String> language;
 }
