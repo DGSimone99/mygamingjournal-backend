@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class GameService {
 
@@ -50,16 +52,6 @@ public class GameService {
     public Page<GameResponse> searchGamesByQuery(String query, Pageable pageable) {
         return gameRepository.findByAllFields(query.toLowerCase(), pageable)
                 .map(GameMapper::toResponse);
-    }
-
-    public Page<GameResponse> searchGames(String name, Integer year, String platform, Double minRating, Pageable pageable) {
-        return gameRepository.searchGames(name, year, platform, minRating, pageable)
-                .map(GameMapper::toResponse);
-    }
-
-    @Transactional
-    public void updateGame(Game game) {
-        gameRepository.save(game);
     }
 
     @Transactional

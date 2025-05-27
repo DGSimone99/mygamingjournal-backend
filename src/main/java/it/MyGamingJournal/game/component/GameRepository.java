@@ -9,21 +9,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface GameRepository extends JpaRepository<Game, Long> {
-    @Query("SELECT g FROM Game g " +
-            "WHERE (:name IS NULL OR LOWER(g.name) LIKE LOWER(CONCAT('%', :name, '%'))) " +
-            "AND (:year IS NULL OR FUNCTION('YEAR', g.released) = :year) " +
-            "AND (:platform IS NULL OR :platform MEMBER OF g.parentPlatforms) " +
-            "AND (:minRating IS NULL OR g.rating >= :minRating) " +
-            "ORDER BY g.released DESC")
-    Page<Game> searchGames(
-            @Param("name") String name,
-            @Param("year") Integer year,
-            @Param("platform") String platform,
-            @Param("minRating") Double minRating,
-            Pageable pageable
-    );
+import java.util.List;
 
+public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g JOIN g.genres genre WHERE LOWER(genre) = LOWER(:genre)")
     Page<Game> findByGenre(@Param("genre") String genre, Pageable pageable);
 
