@@ -1,6 +1,9 @@
 package it.MyGamingJournal.auth.User;
 
 import it.MyGamingJournal.auth.JwtTokenUtil;
+import it.MyGamingJournal.auth.RegisterRequest;
+import it.MyGamingJournal.gameEntry.achievementEntry.AchievementEntry;
+import it.MyGamingJournal.gameEntry.enums.GameStatus;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
 import jakarta.persistence.EntityExistsException;
@@ -38,22 +41,31 @@ public class AppUserService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    public void registerUser(String username, String email, String password, Set<Role> roles) {
-        if (appUserRepository.existsByUsername(username)) {
+    public void registerUser(RegisterRequest registerRequest) {
+        if (appUserRepository.existsByUsername(registerRequest.getUsername())) {
             throw new EntityExistsException("Username already exists");
         }
 
-        if (appUserRepository.existsByEmail(email)) {
+        if (appUserRepository.existsByEmail(registerRequest.getEmail())) {
             throw new EntityExistsException("Email already exists");
         }
 
+
         AppUser appUser = new AppUser();
-        appUser.setUsername(username);
-        appUser.setDisplayName(username);
-        appUser.setLanguage(List.of(Locale.getDefault().getLanguage()));
-        appUser.setEmail(email);
-        appUser.setPassword(passwordEncoder.encode(password));
-        appUser.setRoles(roles);
+
+        if (registerRequest.getLanguages() != null) {
+            List<String> langs = registerRequest.getLanguages().stream()
+                    .distinct()
+                    .limit(3)
+                    .toList();
+            appUser.setLanguage(langs);
+        }
+
+        appUser.setUsername(registerRequest.getUsername());
+        appUser.setDisplayName(registerRequest.getUsername());
+        appUser.setEmail(registerRequest.getEmail());
+        appUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        appUser.setRoles(Set.of(Role.ROLE_USER));
         appUserRepository.save(appUser);
     }
 
@@ -70,10 +82,9 @@ public class AppUserService {
         }
     }
 
-    public AppUser loadUserByUsername(String username)  {
-        AppUser appUser = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
-        return appUser;
+    public AppUser findById(Long id) {
+        return appUserRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     public Optional<AppUser> findByUsername(String username) {
@@ -90,24 +101,31 @@ public class AppUserService {
         appUserResponse.bio = user.getBio();
         appUserResponse.language = user.getLanguage();
         appUserResponse.createdAt = user.getCreatedAt();
-        appUserResponse.isOnline = user.getIsOnline();
-
-        appUserResponse.totalGames = user.getTotalGames();
-        appUserResponse.totalHoursPlayed = user.getTotalHoursPlayed();
-        appUserResponse.completedGamesCount = user.getCompletedGamesCount();
-        appUserResponse.wishlistedGamesCount = user.getWishlistedGamesCount();
-        appUserResponse.unlockedAchievements = user.getUnlockedAchievements();
-
         return appUserResponse;
     }
 
-    public AppUser getUserWithGameStats(Long userId) {
+    public AppUserStatsResponse getUserStats(Long userId) {
         AppUser user = appUserRepository.findByIdWithGameEntries(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        List<GameEntry> initializedEntries = gameEntryRepository.findAllWithAchievements(user.getGameEntries());
-        user.setGameEntries(initializedEntries);
+        List<GameEntry> entries = gameEntryRepository.findAllWithAchievements(user.getGameEntries());
 
-        return user;
+        int totalGames = entries.size();
+        double totalHours = entries.stream()
+                .mapToDouble(GameEntry::getHoursPlayed)
+                .sum();
+        long completedCount = entries.stream()
+                .filter(e -> e.getStatus() == GameStatus.COMPLETED)
+                .count();
+        long wishlistedCount = entries.stream()
+                .filter(e -> e.getStatus() == GameStatus.WISHLIST)
+                .count();
+        long unlockedAchievements = entries.stream()
+                .flatMap(e -> e.getAchievements().stream())
+                .filter(AchievementEntry::isUnlocked)
+                .count();
+
+        return new AppUserStatsResponse(totalGames, totalHours, completedCount, wishlistedCount, unlockedAchievements);
     }
+
 }

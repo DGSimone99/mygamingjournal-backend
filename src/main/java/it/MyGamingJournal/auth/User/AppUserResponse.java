@@ -15,12 +15,4 @@ public class AppUserResponse {
    public String bio;
    public List<String> language;
    public LocalDate createdAt;
-   public Boolean isOnline;
-
-   public int totalGames;
-   public double totalHoursPlayed;
-   public long completedGamesCount;
-   public long wishlistedGamesCount;
-   public long unlockedAchievements;
-
 }

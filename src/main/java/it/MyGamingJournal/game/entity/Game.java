@@ -106,6 +106,10 @@ public class Game {
     @JsonManagedReference
     private List<DeveloperMember> developmentTeam = new ArrayList<>();
 
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Review> reviews = new ArrayList<>();
+
 
     @Embeddable
     @Data

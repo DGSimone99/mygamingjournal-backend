@@ -9,6 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,7 +26,12 @@ public class AuthRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Optional<AppUser> adminUser = appUserService.findByUsername("AdminSimone");
         if (adminUser.isEmpty()) {
-            appUserService.registerUser("AdminSimone", "simone.digiorgio99@gmail.com","Adminpwd99", Set.of(Role.ROLE_ADMIN, Role.ROLE_USER));
+            RegisterRequest registerRequest = new RegisterRequest();
+            registerRequest.setUsername("AdminSimone");
+            registerRequest.setEmail("simone.digiorgio99@gmail.com");
+            registerRequest.setPassword("Adminpwd99");
+            registerRequest.setLanguages(List.of("it", "en"));
+            appUserService.registerUser(registerRequest);
         }
     }
 }

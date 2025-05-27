@@ -1,6 +1,8 @@
 package it.MyGamingJournal.auth.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import it.MyGamingJournal.game.entity.Review;
 import it.MyGamingJournal.gameEntry.achievementEntry.AchievementEntry;
 import it.MyGamingJournal.gameEntry.enums.GameStatus;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
@@ -46,10 +48,10 @@ public class AppUser implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "language_code")
     private List<String> language = new ArrayList<>();
-
-    @Column(name = "is_online")
-    private Boolean isOnline;
 
     @Column(updatable = false, name = "created_at")
     private LocalDate createdAt;
@@ -58,6 +60,10 @@ public class AppUser implements UserDetails {
     protected void onCreate() {
         this.createdAt = LocalDate.now();
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Review> reviews = new ArrayList<>();
 
     @ManyToMany
     @JsonIgnore
