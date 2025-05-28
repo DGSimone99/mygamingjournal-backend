@@ -29,7 +29,7 @@ public class ReviewService {
         return reviewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
-    public void saveReview(Review review, Long gameId, Long userId) {
+    public void saveReview(ReviewRequest reviewRequest, Long gameId, Long userId) {
         Game game = gameService.getDetailsGame(gameId);
         AppUser user = appUserService.findById(userId);
 
@@ -37,15 +37,16 @@ public class ReviewService {
             throw new IllegalArgumentException("You already reviewed this game");
         }
 
-        if (review.getScore() < 1 || review.getScore() > 10) {
+        if (reviewRequest.getScore() < 1 || reviewRequest.getScore() > 10) {
             throw new IllegalArgumentException("Score must be between 1 and 10");
         }
-        if (review.getText() == null || review.getText().trim().isEmpty()) {
+        if (reviewRequest.getText() == null || reviewRequest.getText().trim().isEmpty()) {
             throw new IllegalArgumentException("Review text cannot be empty");
         }
 
-        review.setText(review.getText());
-        review.setScore(review.getScore());
+        Review review = new Review();
+        review.setText(reviewRequest.getText());
+        review.setScore(reviewRequest.getScore());
         review.setDate(LocalDate.now());
         review.setGame(game);
         review.setUser(user);
@@ -81,5 +82,25 @@ public class ReviewService {
             throw new AccessDeniedException("You can't delete a review you didn't write");
         }
         reviewRepository.deleteById(id);
+    }
+
+    public ReviewResponse toResponse(Review review) {
+        return new ReviewResponse(
+                review.getId(),
+                review.getText(),
+                review.getScore(),
+                review.getDate(),
+                new ReviewResponse.Author(
+                        review.getUser().getId(),
+                        review.getUser().getUsername(),
+                        review.getUser().getAvatarUrl(),
+                        review.getUser().getDisplayName()
+                ),
+                new ReviewResponse.Game(
+                        review.getGame().getId(),
+                        review.getGame().getName(),
+                        review.getGame().getBackgroundImage()
+                )
+        );
     }
 }

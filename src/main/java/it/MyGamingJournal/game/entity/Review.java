@@ -1,6 +1,7 @@
 package it.MyGamingJournal.game.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.MyGamingJournal.auth.User.AppUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,11 +28,11 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name="game_id")
-    @JsonBackReference
+    @JsonIgnore
     private Game game;
 
     @ManyToOne
     @JoinColumn(name="user_id")
-    @JsonBackReference
+    @JsonIgnore
     private AppUser user;
 }
