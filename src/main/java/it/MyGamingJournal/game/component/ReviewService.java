@@ -53,29 +53,6 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public void updateReview(ReviewRequest reviewRequest, Long id, AppUser user) {
-        if (reviewRequest.getScore() < 1 || reviewRequest.getScore() > 10) {
-            throw new IllegalArgumentException("Score must be between 1 and 10");
-        }
-        if (reviewRequest.getText() == null || reviewRequest.getText().trim().isEmpty()) {
-            throw new IllegalArgumentException("Review text cannot be empty");
-        }
-
-        Review review = findById(id);
-        if (review == null) {
-            throw new EntityNotFoundException("Review not found");
-        }
-
-        if (!review.getUser().equals(user)) {
-            throw new IllegalArgumentException("You can't update a review you didn't write");
-        }
-
-        review.setText(reviewRequest.getText());
-        review.setScore(reviewRequest.getScore());
-        review.setDate(LocalDate.now());
-        reviewRepository.save(review);
-    }
-
     public void deleteReview(Long id, AppUser user) {
         Review review = findById(id);
         if (!review.getUser().equals(user)) {

@@ -32,11 +32,6 @@ public class ReviewController {
         reviewService.saveReview(reviewRequest, gameId, user.getId());
     }
 
-    @PutMapping
-    public void updateReview( @AuthenticationPrincipal AppUser user, long id, ReviewRequest reviewRequest) {
-        reviewService.updateReview(reviewRequest, id, user);
-    }
-
     @DeleteMapping("/{id}")
     public void deleteReview(@AuthenticationPrincipal AppUser user, @PathVariable long id) {
         reviewService.deleteReview(id, user);
