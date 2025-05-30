@@ -70,9 +70,9 @@ public class AppUser implements UserDetails {
     @JoinTable(name = "user_friends", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "friend_id"))
     private Set<AppUser> friends = new HashSet<>();
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GameEntry> gameEntries;
+    @JsonIgnore
+    private List<GameEntry> gameEntries = new ArrayList<>();
 
     public int getTotalGames() {
         return gameEntries.size();
@@ -104,9 +104,12 @@ public class AppUser implements UserDetails {
                 .count();
     }
 
+    private int experience = 0;
+    private int level = 0;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
 
     private boolean accountNonExpired=true;

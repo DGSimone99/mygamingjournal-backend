@@ -1,6 +1,7 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
 import it.MyGamingJournal.auth.User.AppUser;
+import it.MyGamingJournal.auth.User.AppUserService;
 import it.MyGamingJournal.exceptions.GameNotFoundException;
 import it.MyGamingJournal.game.component.AchievementRepository;
 import it.MyGamingJournal.game.component.GameRepository;
@@ -36,6 +37,9 @@ public class GameEntryService {
 
     @Autowired
     private GameService gameService;
+
+    @Autowired
+    private AppUserService appUserService;
 
     public List<GameEntry> getGamesByUser(AppUser user) {
         List<GameEntry> gameEntries = gameEntryRepository.findByUser(user);
@@ -106,6 +110,7 @@ public class GameEntryService {
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
+        appUserService.updateUserLevelAndExp(user);
 
         return savedEntry;
     }
@@ -128,6 +133,7 @@ public class GameEntryService {
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
+        appUserService.updateUserLevelAndExp(user);
 
         return savedEntry;
     }
@@ -136,6 +142,7 @@ public class GameEntryService {
         GameEntry gameEntry = gameEntryRepository.findByUserAndId(user, id);
         gameEntryRepository.delete(gameEntry);
         gameService.updateGameStats(gameEntry.getGame());
+        appUserService.updateUserLevelAndExp(user);
     }
 
     public void setAvailability(AppUser user, GameEntry gameEntry, Set<String> languages) {

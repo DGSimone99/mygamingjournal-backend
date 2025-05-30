@@ -15,4 +15,5 @@ public class AppUserResponse {
    public String bio;
    public List<String> language;
    public LocalDate createdAt;
+   public int level;
 }

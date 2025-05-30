@@ -28,7 +28,7 @@ public class AppUserController {
     public List<AppUserResponse> getAllUsers() { return appUserRepository.findAll().stream().map(AppUserService::fromEntity).toList(); }
 
     @GetMapping("/{id}")
-    public AppUserResponse getUserById(Long id) {
+    public AppUserResponse getUserById(@PathVariable Long id) {
         return appUserRepository.findById(id).map(AppUserService::fromEntity).orElseThrow(() ->  new EntityNotFoundException("User not found"));
     }
 

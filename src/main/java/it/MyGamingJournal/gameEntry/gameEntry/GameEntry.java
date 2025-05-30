@@ -68,7 +68,7 @@ public class GameEntry {
 
 
     @Column( columnDefinition = "TEXT")
-    private String notes;
+    private String notes = "";
 
 
     @OneToMany(mappedBy = "gameEntry", cascade = CascadeType.ALL, orphanRemoval = true)

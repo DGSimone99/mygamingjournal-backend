@@ -13,4 +13,6 @@ public class AppUserStatsResponse {
     public long completedGamesCount;
     public long wishlistedGamesCount;
     public long unlockedAchievements;
+    public int level;
+    public int experience;
 }
