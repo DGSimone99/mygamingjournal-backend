@@ -27,8 +27,8 @@ public class GameEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "game_entry_id")
-    private Long gameEntryId;
+    @Column(name = "real_game_id")
+    private Long realGameId;
 
     @Column(name = "game_name", length = 255)
     private String gameName;
@@ -55,6 +55,9 @@ public class GameEntry {
     @Column(name = "completion_mode")
     private CompletionMode completionMode;
 
+    @Column(name= "background_image", length = 512)
+    private String backgroundImage;
+
     @Column(name = "available_to_play")
     private boolean availableToPlay = false;
 
@@ -62,6 +65,11 @@ public class GameEntry {
     @CollectionTable(name = "game_entry_languages", joinColumns = @JoinColumn(name = "game_entry_id"))
     @Column(name = "languages")
     private Set<String> availableLanguages = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "game_entry_platforms", joinColumns = @JoinColumn(name = "game_entry_id"))
+    @Column(name = "platforms")
+    private Set<String> availablePlatforms = new HashSet<>();
 
     @Column(name = "available_until")
     private LocalDate availableUntil;
@@ -74,4 +82,33 @@ public class GameEntry {
     @OneToMany(mappedBy = "gameEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AchievementEntry> achievements = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    private void handleAvailabilitySettings() {
+        if (availableToPlay) {
+            availableUntil = LocalDate.now().plusDays(14);
+            availableLanguages = new HashSet<>(user.getLanguages());
+
+            if (game != null && game.getPlatforms() != null) {
+                Set<String> validPlatforms = new HashSet<>(game.getPlatforms());
+
+                if (availablePlatforms != null) {
+                    availablePlatforms.retainAll(validPlatforms);
+                } else {
+                    availablePlatforms = new HashSet<>();
+                }
+
+                if (availablePlatforms.size() > 2) {
+                    throw new IllegalStateException("At most 2 platforms are allowed.");
+                }
+            }
+        } else {
+            availableUntil = null;
+            availableLanguages.clear();
+            availablePlatforms.clear();
+        }
+    }
+
+
 }

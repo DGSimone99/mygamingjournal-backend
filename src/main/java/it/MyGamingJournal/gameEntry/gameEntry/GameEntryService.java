@@ -12,6 +12,8 @@ import it.MyGamingJournal.gameEntry.achievementEntry.AchievementEntry;
 import it.MyGamingJournal.gameEntry.enums.CompletionMode;
 import it.MyGamingJournal.gameEntry.enums.GameStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -74,15 +76,17 @@ public class GameEntryService {
             Game game = gameService.getDetailsGame(idGame);
             GameEntry gameEntry = new GameEntry();
             gameEntry.setGame(game);
-            gameEntry.setGameEntryId(game.getId());
+            gameEntry.setRealGameId(game.getId());
             gameEntry.setGameName(game.getName());
             gameEntry.setGameSlug(game.getSlug());
+            gameEntry.setBackgroundImage(game.getBackgroundImage());
             gameEntry.setUser(user);
             gameEntry.setHoursPlayed(hoursPlayed);
             gameEntry.setPersonalRating(Math.round(personalRating * 10.0) / 10.0);
             gameEntry.setStatus(status);
             gameEntry.setCompletionMode(completionMode);
             gameEntry.setNotes(notes);
+
 
              Sort sort = Sort.by("name").ascending();
             List<Achievement> achievements = achievementRepository.findAchievementsByGame(game, sort);
@@ -110,7 +114,6 @@ public class GameEntryService {
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
-        appUserService.updateUserLevelAndExp(user);
 
         return savedEntry;
     }
@@ -133,7 +136,6 @@ public class GameEntryService {
         game.setRating(average != null ? Math.round(average * 10.0) / 10.0 : 0.0);
 
         gameService.updateGameStats(game);
-        appUserService.updateUserLevelAndExp(user);
 
         return savedEntry;
     }
@@ -142,16 +144,59 @@ public class GameEntryService {
         GameEntry gameEntry = gameEntryRepository.findByUserAndId(user, id);
         gameEntryRepository.delete(gameEntry);
         gameService.updateGameStats(gameEntry.getGame());
-        appUserService.updateUserLevelAndExp(user);
     }
 
-    public void setAvailability(AppUser user, GameEntry gameEntry, Set<String> languages) {
-        getGameEntry(user, gameEntry.getGame().getId());
-        gameEntry.setAvailableLanguages(languages != null ? languages : new HashSet<>());
-        gameEntry.setAvailableToPlay(true);
-        gameEntry.setAvailableUntil(LocalDate.now().plusWeeks(2));
-        gameEntryRepository.save(gameEntry);
+    public Page<GameEntryAvailabilityResponse> getAvailablePlayers(
+            long realGameId,
+            Set<String> languages,
+            Set<String> platforms,
+            Pageable pageable) {
+
+        Page<GameEntry> entries = gameEntryRepository.findAvailablePlayers(realGameId, languages, platforms, pageable);
+
+        return entries.map(this::toAvailabilityDTO);
     }
+
+
+    private GameEntryAvailabilityResponse toAvailabilityDTO(GameEntry entry) {
+        return new GameEntryAvailabilityResponse(
+                entry.getGame().getName(),
+                entry.getGame().getBackgroundImage(),
+                entry.getUser().getDisplayName(),
+                entry.getUser().getAvatarUrl(),
+                entry.getAvailablePlatforms(),
+                entry.getAvailableLanguages()
+        );
+    }
+
+
+
+    public void updateAvailability(Long gameEntryId, GameEntryAvailabilityUpdateRequest request) {
+        GameEntry entry = gameEntryRepository.findById(gameEntryId)
+                .orElseThrow(() -> new RuntimeException("GameEntry not found"));
+
+        entry.setAvailableToPlay(request.isAvailableToPlay());
+
+        if (request.isAvailableToPlay()) {
+            Set<String> requestedPlatforms = request.getAvailablePlatforms();
+            if (requestedPlatforms == null || requestedPlatforms.isEmpty()) {
+                throw new IllegalArgumentException("You must select at least one platform");
+            }
+            if (requestedPlatforms.size() > 3) {
+                throw new IllegalArgumentException("You can select up to 3 platforms at a time");
+            }
+
+            Set<String> validPlatforms = new HashSet<>(entry.getGame().getPlatforms());
+            if (!validPlatforms.containsAll(requestedPlatforms)) {
+                throw new IllegalArgumentException("You can only select platforms that the game supports");
+            }
+
+            entry.setAvailablePlatforms(requestedPlatforms);
+        }
+
+        gameEntryRepository.save(entry);
+    }
+
 
     @Scheduled(cron = "0 0 3 * * *", zone = "Europe/Rome")
     public void expireGameEntryAvailability() {

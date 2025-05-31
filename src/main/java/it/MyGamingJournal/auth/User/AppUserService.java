@@ -57,7 +57,7 @@ public class AppUserService {
                             .limit(3)
                             .toList()
             );
-            appUser.setLanguage(langs);
+            appUser.setLanguages(langs);
         }
 
         appUser.setUsername(registerRequest.getUsername());
@@ -98,7 +98,7 @@ public class AppUserService {
         appUserResponse.displayName = user.getUsername();
         appUserResponse.avatarUrl = user.getAvatarUrl();
         appUserResponse.bio = user.getBio();
-        appUserResponse.language = user.getLanguage();
+        appUserResponse.language = user.getLanguages();
         appUserResponse.createdAt = user.getCreatedAt();
         appUserResponse.level = user.getLevel();
         return appUserResponse;
@@ -125,9 +125,11 @@ public class AppUserService {
                 .filter(AchievementEntry::isUnlocked)
                 .count();
 
-        updateUserLevelAndExp(user);
+        int totalExp = LevelingSystem.calculateExp(totalGames, (int) completedCount, (int) unlockedAchievements, totalHours);
+        int level = LevelingSystem.calculateLevel(totalExp);
 
-        return new AppUserStatsResponse(totalGames, totalHours, completedCount, wishlistedCount, unlockedAchievements, user.getLevel(), user.getExperience());
+
+        return new AppUserStatsResponse(totalGames, totalHours, completedCount, wishlistedCount, unlockedAchievements, level, totalExp);
     }
 
     public class LevelingSystem {
@@ -144,34 +146,5 @@ public class AppUserService {
         public static int calculateLevel(int totalExp) {
             return totalExp / expPerLevel;
         }
-
-        public static int expToNextLevel(int totalExp) {
-            return expPerLevel - (totalExp % expPerLevel);
-        }
     }
-
-    public void updateUserLevelAndExp(AppUser user) {
-        AppUser fullUser = appUserRepository.findByIdWithGameEntries(user.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        int gameEntries = fullUser.getGameEntries().size();
-        int completedGames = (int) fullUser.getGameEntries().stream()
-                .filter(e -> e.getStatus() == GameStatus.COMPLETED)
-                .count();
-        int achievements = (int) fullUser.getGameEntries().stream()
-                .flatMap(e -> e.getAchievements().stream())
-                .filter(AchievementEntry::isUnlocked)
-                .count();
-        double hoursPlayed = fullUser.getGameEntries().stream()
-                .mapToDouble(GameEntry::getHoursPlayed)
-                .sum();
-
-        int totalExp = LevelingSystem.calculateExp(gameEntries, completedGames, achievements, hoursPlayed);
-        int level = LevelingSystem.calculateLevel(totalExp);
-
-        fullUser.setExperience(totalExp);
-        fullUser.setLevel(level);
-        appUserRepository.save(fullUser);
-    }
-
 }

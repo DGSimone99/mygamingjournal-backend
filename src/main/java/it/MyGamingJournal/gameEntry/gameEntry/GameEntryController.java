@@ -1,21 +1,31 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
 import it.MyGamingJournal.auth.User.AppUser;
+import it.MyGamingJournal.auth.User.AppUserService;
 import it.MyGamingJournal.gameEntry.enums.CompletionMode;
 import it.MyGamingJournal.gameEntry.enums.GameStatus;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/my-library")
 public class GameEntryController {
     @Autowired
     private GameEntryService gameEntryService;
+
+    @Autowired
+    private AppUserService appUserService;
 
     @Autowired
     private GameEntryRepository gameEntryRepository;
@@ -56,7 +66,7 @@ public class GameEntryController {
 
     @PutMapping
     public GameEntry editGameEntry(@AuthenticationPrincipal AppUser user,
-                                  @RequestParam long idGame,
+                                  @RequestParam long realGameId,
                                   @RequestParam(required = false) Double hoursPlayed,
                                   @RequestParam(required = false) Double personalRating,
                                   @RequestParam(required = false) GameStatus status,
@@ -67,7 +77,7 @@ public class GameEntryController {
         }
         return gameEntryService.updateGameEntry(
                 user,
-                idGame,
+                realGameId,
                 hoursPlayed != null ? hoursPlayed : 0,
                 personalRating != null ? personalRating : 0.0,
                 status != null ? status : GameStatus.PLAYING,
@@ -78,5 +88,14 @@ public class GameEntryController {
     @DeleteMapping
     public void deleteGameEntry(@AuthenticationPrincipal AppUser user, @RequestParam long id) {
         gameEntryService.deleteGameEntry(user, id);
+    }
+
+    @GetMapping("{id}")
+    public List<GameEntry> getUserGameEntries(@PathVariable long id) {
+        AppUser user = appUserService.findById(id);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        return gameEntryService.getGamesByUser(user);
     }
 }

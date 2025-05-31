@@ -51,7 +51,7 @@ public class AppUser implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "language_code")
-    private List<String> language = new ArrayList<>();
+    private List<String> languages = new ArrayList<>();
 
     @Column(updatable = false, name = "created_at")
     private LocalDate createdAt;
@@ -111,6 +111,26 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
+    @Column(name = "steam_username", length = 100)
+    private String steamUsername;
+
+    @Column(name = "psn_username", length = 100)
+    private String psnUsername;
+
+    @Column(name = "xbox_username", length = 100)
+    private String xboxUsername;
+
+    @Column(name = "nintendo_username", length = 100)
+    private String nintendoUsername;
+
+    @Column(name = "epic_username", length = 100)
+    private String epicUsername;
+
+    @Column(name = "riot_id", length = 100)
+    private String riotId;
+
+    @Column(name = "discord_tag", length = 100)
+    private String discordTag;
 
     private boolean accountNonExpired=true;
     private boolean accountNonLocked=true;
