@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GameEntryService {
@@ -160,16 +157,17 @@ public class GameEntryService {
 
     private GameEntryAvailabilityResponse toAvailabilityDTO(GameEntry entry) {
         return new GameEntryAvailabilityResponse(
+                entry.getId(),
                 entry.getGame().getName(),
                 entry.getGame().getBackgroundImage(),
                 entry.getUser().getDisplayName(),
                 entry.getUser().getAvatarUrl(),
+                entry.getUser().getId(),
+                entry.getAvailableUntil(),
                 entry.getAvailablePlatforms(),
                 entry.getAvailableLanguages()
         );
     }
-
-
 
     public void updateAvailability(Long gameEntryId, GameEntryAvailabilityUpdateRequest request) {
         GameEntry entry = gameEntryRepository.findById(gameEntryId)
@@ -192,10 +190,23 @@ public class GameEntryService {
             }
 
             entry.setAvailablePlatforms(requestedPlatforms);
+            entry.setAvailableUntil(LocalDate.now().plusDays(14));
+
+            AppUser user = entry.getUser();
+            if (user == null || user.getLanguages() == null || user.getLanguages().isEmpty()) {
+                throw new IllegalStateException("User languages not found");
+            }
+
+            entry.setAvailableLanguages(new ArrayList<>(user.getLanguages()));
+        } else {
+            entry.setAvailableUntil(null);
+            entry.getAvailablePlatforms().clear();
+            entry.getAvailableLanguages().clear();
         }
 
         gameEntryRepository.save(entry);
     }
+
 
 
     @Scheduled(cron = "0 0 3 * * *", zone = "Europe/Rome")
@@ -203,7 +214,7 @@ public class GameEntryService {
         List<GameEntry> expired = gameEntryRepository.findByAvailableToPlayTrueAndAvailableUntilBefore(LocalDate.now());
         for (GameEntry entry : expired) {
             entry.setAvailableToPlay(false);
-            entry.setAvailableLanguages(Collections.emptySet());
+            entry.setAvailableLanguages(List.of());
             entry.setAvailableUntil(null);
         }
         gameEntryRepository.saveAll(expired);

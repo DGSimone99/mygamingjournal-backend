@@ -66,7 +66,7 @@ public class GameEntryController {
 
     @PutMapping
     public GameEntry editGameEntry(@AuthenticationPrincipal AppUser user,
-                                  @RequestParam long realGameId,
+                                  @RequestParam long idGame,
                                   @RequestParam(required = false) Double hoursPlayed,
                                   @RequestParam(required = false) Double personalRating,
                                   @RequestParam(required = false) GameStatus status,
@@ -77,7 +77,7 @@ public class GameEntryController {
         }
         return gameEntryService.updateGameEntry(
                 user,
-                realGameId,
+                idGame,
                 hoursPlayed != null ? hoursPlayed : 0,
                 personalRating != null ? personalRating : 0.0,
                 status != null ? status : GameStatus.PLAYING,

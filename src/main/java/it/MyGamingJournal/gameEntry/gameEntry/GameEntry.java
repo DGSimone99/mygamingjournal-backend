@@ -64,7 +64,7 @@ public class GameEntry {
     @ElementCollection
     @CollectionTable(name = "game_entry_languages", joinColumns = @JoinColumn(name = "game_entry_id"))
     @Column(name = "languages")
-    private Set<String> availableLanguages = new HashSet<>();
+    private List<String> availableLanguages = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "game_entry_platforms", joinColumns = @JoinColumn(name = "game_entry_id"))
@@ -82,33 +82,4 @@ public class GameEntry {
     @OneToMany(mappedBy = "gameEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AchievementEntry> achievements = new ArrayList<>();
-
-    @PrePersist
-    @PreUpdate
-    private void handleAvailabilitySettings() {
-        if (availableToPlay) {
-            availableUntil = LocalDate.now().plusDays(14);
-            availableLanguages = new HashSet<>(user.getLanguages());
-
-            if (game != null && game.getPlatforms() != null) {
-                Set<String> validPlatforms = new HashSet<>(game.getPlatforms());
-
-                if (availablePlatforms != null) {
-                    availablePlatforms.retainAll(validPlatforms);
-                } else {
-                    availablePlatforms = new HashSet<>();
-                }
-
-                if (availablePlatforms.size() > 2) {
-                    throw new IllegalStateException("At most 2 platforms are allowed.");
-                }
-            }
-        } else {
-            availableUntil = null;
-            availableLanguages.clear();
-            availablePlatforms.clear();
-        }
-    }
-
-
 }
