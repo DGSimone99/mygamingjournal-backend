@@ -13,4 +13,8 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     boolean existsByUsername(String username);
     @Query("SELECT u FROM AppUser u LEFT JOIN FETCH u.gameEntries WHERE u.id = :id")
     Optional<AppUser> findByIdWithGameEntries(@Param("id") Long id);
+
+    @Query("SELECT u FROM AppUser u LEFT JOIN FETCH u.friends WHERE u.id = :id")
+    Optional<AppUser> findByIdWithFriends(@Param("id") Long id);
+
 }

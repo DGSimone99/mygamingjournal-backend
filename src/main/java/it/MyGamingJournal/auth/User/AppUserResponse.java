@@ -16,4 +16,12 @@ public class AppUserResponse {
    public List<String> language;
    public LocalDate createdAt;
    public int level;
+
+   public String steamUsername;
+   public String psnUsername;
+   public String xboxUsername;
+   public String nintendoUsername;
+   public String epicUsername;
+   public String riotId;
+   public String discordTag;
 }

@@ -9,6 +9,9 @@ import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -90,17 +94,26 @@ public class AppUserService {
         return appUserRepository.findByUsername(username);
     }
 
-    public static AppUserResponse fromEntity(AppUser user) {
+    public AppUserResponse fromEntity(AppUser user) {
         AppUserResponse appUserResponse = new AppUserResponse();
         appUserResponse.id = user.getId();
         appUserResponse.username = user.getUsername();
         appUserResponse.email = user.getEmail();
-        appUserResponse.displayName = user.getUsername();
+        appUserResponse.displayName = user.getDisplayName();
         appUserResponse.avatarUrl = user.getAvatarUrl();
         appUserResponse.bio = user.getBio();
         appUserResponse.language = user.getLanguages();
         appUserResponse.createdAt = user.getCreatedAt();
-        appUserResponse.level = user.getLevel();
+        AppUserStatsResponse stats = getUserStats(user.getId());
+        appUserResponse.level = stats.getLevel();
+        appUserResponse.steamUsername = user.getSteamUsername();
+        appUserResponse.psnUsername = user.getPsnUsername();
+        appUserResponse.xboxUsername = user.getXboxUsername();
+        appUserResponse.nintendoUsername = user.getNintendoUsername();
+        appUserResponse.epicUsername = user.getEpicUsername();
+        appUserResponse.riotId = user.getRiotId();
+        appUserResponse.discordTag = user.getDiscordTag();
+
         return appUserResponse;
     }
 
@@ -147,4 +160,92 @@ public class AppUserService {
             return totalExp / expPerLevel;
         }
     }
+
+    public void updateDisplayName(Long userId, AppUserNameRequest request) {
+        AppUser user = appUserRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setDisplayName(request.getDisplayName());
+        appUserRepository.save(user);
+    }
+
+    public void updateBio(Long userId, AppUserBioRequest request) {
+        AppUser user = appUserRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setBio(request.getBio());
+        appUserRepository.save(user);
+    }
+
+    public void updateLanguages(Long userId, AppUserLanguagesRequest request) {
+        AppUser user = appUserRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<String> langs = new ArrayList<>(
+                request.getLanguages().stream()
+                        .distinct()
+                        .limit(3)
+                        .toList()
+        );
+        user.setLanguages(langs);
+        appUserRepository.save(user);
+    }
+
+    public void updateContacts(Long userId, AppUserContactsRequest request) {
+        AppUser user = appUserRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setSteamUsername(request.getSteamUsername());
+        user.setPsnUsername(request.getPsnUsername());
+        user.setXboxUsername(request.getXboxUsername());
+        user.setNintendoUsername(request.getNintendoUsername());
+        user.setEpicUsername(request.getEpicUsername());
+        user.setRiotId(request.getRiotId());
+        user.setDiscordTag(request.getDiscordTag());
+
+        appUserRepository.save(user);
+    }
+
+    public void toggleFollow(AppUser follower, Long targetUserId) {
+        AppUser target = appUserRepository.findById(targetUserId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        AppUser followerWithFriends = appUserRepository.findByIdWithFriends(follower.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Follower not found"));
+
+        if (followerWithFriends.getFriends().contains(target)) {
+            followerWithFriends.getFriends().remove(target);
+        } else {
+            followerWithFriends.getFriends().add(target);
+        }
+
+        appUserRepository.save(followerWithFriends);
+    }
+
+    public Page<FriendResponse> getFriends(AppUser user, int page, int size) {
+        AppUser userWithFriends = appUserRepository.findByIdWithFriends(user.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<FriendResponse> allFriends = userWithFriends.getFriends().stream().map(friend -> {
+            FriendResponse friendResponse = new FriendResponse();
+            friendResponse.setId(friend.getId());
+            friendResponse.setUsername(friend.getUsername());
+            friendResponse.setDisplayName(friend.getDisplayName());
+            friendResponse.setAvatarUrl(friend.getAvatarUrl());
+            AppUserStatsResponse stats = getUserStats(user.getId());
+            friendResponse.setLevel(stats.getLevel());
+            friendResponse.setLanguages(friend.getLanguages());
+            return friendResponse;
+        }).toList();
+
+        int start = Math.min(page * size, allFriends.size());
+        int end = Math.min(start + size, allFriends.size());
+
+        List<FriendResponse> paginatedList = allFriends.subList(start, end);
+        return new PageImpl<>(paginatedList, PageRequest.of(page, size), allFriends.size());
+    }
+
+
+
+
 }
