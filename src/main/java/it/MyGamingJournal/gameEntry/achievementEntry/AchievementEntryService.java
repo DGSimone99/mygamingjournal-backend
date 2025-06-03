@@ -1,7 +1,6 @@
 package it.MyGamingJournal.gameEntry.achievementEntry;
 
-import it.MyGamingJournal.auth.User.AppUser;
-import it.MyGamingJournal.exceptions.GameNotFoundException;
+import it.MyGamingJournal.auth.user.User;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class AchievementEntryService {
         return achievementEntryRepository.findByGameEntry(gameEntry, sort);
     }
 
-    public AchievementEntry updateAchievementEntry(Long id, AchievementEntryRequest request, AppUser user) {
+    public AchievementEntry updateAchievementEntry(Long id, AchievementEntryRequest request, User user) {
         AchievementEntry achievementEntry = achievementEntryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("AchievementEntry not found"));
 

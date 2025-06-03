@@ -1,7 +1,7 @@
 package it.MyGamingJournal.game.component;
 
-import it.MyGamingJournal.auth.User.AppUser;
-import it.MyGamingJournal.auth.User.AppUserService;
+import it.MyGamingJournal.auth.user.User;
+import it.MyGamingJournal.auth.user.UserService;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.game.entity.Review;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,7 +23,7 @@ public class ReviewService {
     private GameService gameService;
 
     @Autowired
-    private AppUserService appUserService;
+    private UserService userService;
 
     public Review findById(Long id) {
         return reviewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -31,7 +31,7 @@ public class ReviewService {
 
     public void saveReview(ReviewRequest reviewRequest, Long gameId, Long userId) {
         Game game = gameService.getDetailsGame(gameId);
-        AppUser user = appUserService.findById(userId);
+        User user = userService.findUserById(userId);
 
         if (reviewRepository.existsByGameAndUser(game, user)) {
             throw new IllegalArgumentException("You already reviewed this game");
@@ -53,7 +53,7 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public void deleteReview(Long id, AppUser user) {
+    public void deleteReview(Long id, User user) {
         Review review = findById(id);
         if (!review.getUser().equals(user)) {
             throw new AccessDeniedException("You can't delete a review you didn't write");

@@ -1,4 +1,4 @@
-package it.MyGamingJournal.auth;
+package it.MyGamingJournal.auth.auth;
 
 import lombok.Data;
 

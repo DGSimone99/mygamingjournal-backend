@@ -1,7 +1,7 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
 
-import it.MyGamingJournal.auth.User.AppUser;
+import it.MyGamingJournal.auth.user.User;
 import it.MyGamingJournal.game.entity.Game;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
-    List<GameEntry> findByUser(AppUser user);
+    List<GameEntry> findByUser(User user);
 
     @Query("""
     SELECT e FROM GameEntry e
@@ -26,9 +26,9 @@ public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
 
     List<GameEntry> findByAvailableToPlayTrueAndAvailableUntilBefore(LocalDate date);
 
-    GameEntry findByUserAndGameId(AppUser user, long idGame);
+    GameEntry findByUserAndGameId(User user, long idGame);
 
-    GameEntry findByUserAndId(AppUser user, long id);
+    GameEntry findByUserAndId(User user, long id);
 
     @Query("SELECT ge FROM GameEntry ge LEFT JOIN FETCH ge.achievements WHERE ge IN :entries")
     List<GameEntry> findAllWithAchievements(@Param("entries") List<GameEntry> entries);

@@ -1,7 +1,7 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
-import it.MyGamingJournal.auth.User.AppUser;
-import it.MyGamingJournal.auth.User.AppUserService;
+import it.MyGamingJournal.auth.user.User;
+import it.MyGamingJournal.auth.user.UserService;
 import it.MyGamingJournal.exceptions.GameNotFoundException;
 import it.MyGamingJournal.game.component.AchievementRepository;
 import it.MyGamingJournal.game.component.GameRepository;
@@ -38,9 +38,9 @@ public class GameEntryService {
     private GameService gameService;
 
     @Autowired
-    private AppUserService appUserService;
+    private UserService userService;
 
-    public List<GameEntry> getGamesByUser(AppUser user) {
+    public List<GameEntry> getGamesByUser(User user) {
         List<GameEntry> gameEntries = gameEntryRepository.findByUser(user);
         if(gameEntries.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No games found");
@@ -48,7 +48,7 @@ public class GameEntryService {
         return gameEntries;
     }
 
-    public GameEntry getGameEntry(AppUser user, long idGame) {
+    public GameEntry getGameEntry(User user, long idGame) {
         GameEntry gameEntry = gameEntryRepository.findByUserAndGameId(user, idGame);
         if (gameEntry == null) {
             throw new GameNotFoundException(idGame);
@@ -56,14 +56,14 @@ public class GameEntryService {
         return gameEntry;
     }
 
-    public List <GameEntryResponse> getGameEntryResponse(AppUser user) {
+    public List <GameEntryResponse> getGameEntryResponse(User user) {
         List<GameEntry> gameEntries = getGamesByUser(user);
         return gameEntries.stream()
                 .map(gameEntry -> new GameEntryResponse(gameEntry.getGame().getId()))
                 .toList();
     }
 
-    public GameEntry addGameEntry(AppUser user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
+    public GameEntry addGameEntry(User user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
             boolean alreadyExists = gameEntryRepository.findByUser(user).stream()
                     .anyMatch(entry -> entry.getGame().getId().equals(idGame));
             if (alreadyExists) {
@@ -115,7 +115,7 @@ public class GameEntryService {
         return savedEntry;
     }
 
-    public GameEntry updateGameEntry(AppUser user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
+    public GameEntry updateGameEntry(User user, long idGame, Double hoursPlayed, Double personalRating, GameStatus status, CompletionMode completionMode, String notes) {
         GameEntry gameEntry = getGameEntry(user, idGame);
 
         Game game = gameService.getDetailsGame(idGame);
@@ -137,7 +137,7 @@ public class GameEntryService {
         return savedEntry;
     }
 
-    public void deleteGameEntry(AppUser user, long id) {
+    public void deleteGameEntry(User user, long id) {
         GameEntry gameEntry = gameEntryRepository.findByUserAndId(user, id);
         gameEntryRepository.delete(gameEntry);
         gameService.updateGameStats(gameEntry.getGame());
@@ -192,7 +192,7 @@ public class GameEntryService {
             entry.setAvailablePlatforms(requestedPlatforms);
             entry.setAvailableUntil(LocalDate.now().plusDays(14));
 
-            AppUser user = entry.getUser();
+            User user = entry.getUser();
             if (user == null || user.getLanguages() == null || user.getLanguages().isEmpty()) {
                 throw new IllegalStateException("User languages not found");
             }

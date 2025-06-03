@@ -1,11 +1,13 @@
-package it.MyGamingJournal.auth.User;
+package it.MyGamingJournal.auth.user.userResponses;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
+@Builder
 @Data
-public class FriendResponse {
+public class UserBasicInfoResponse {
     private Long id;
     private String username;
     private String displayName;

@@ -1,6 +1,6 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
-import it.MyGamingJournal.auth.User.AppUserService;
+import it.MyGamingJournal.auth.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +17,7 @@ public class GameEntryAvailabilityController {
     private GameEntryService gameEntryService;
 
     @Autowired
-    private AppUserService appUserService;
+    private UserService userService;
 
     @Autowired
     private GameEntryRepository gameEntryRepository;

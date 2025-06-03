@@ -1,22 +1,16 @@
 package it.MyGamingJournal.gameEntry.gameEntry;
 
-import it.MyGamingJournal.auth.User.AppUser;
-import it.MyGamingJournal.auth.User.AppUserService;
+import it.MyGamingJournal.auth.user.User;
+import it.MyGamingJournal.auth.user.UserService;
 import it.MyGamingJournal.gameEntry.enums.CompletionMode;
 import it.MyGamingJournal.gameEntry.enums.GameStatus;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/my-library")
@@ -25,13 +19,13 @@ public class GameEntryController {
     private GameEntryService gameEntryService;
 
     @Autowired
-    private AppUserService appUserService;
+    private UserService userService;
 
     @Autowired
     private GameEntryRepository gameEntryRepository;
 
     @GetMapping
-    public List<GameEntry> getGameEntries(@AuthenticationPrincipal AppUser user) {
+    public List<GameEntry> getGameEntries(@AuthenticationPrincipal User user) {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
@@ -39,12 +33,12 @@ public class GameEntryController {
     }
 
     @GetMapping("/ids")
-    public List <GameEntryResponse> getGameEntryResponse(@AuthenticationPrincipal AppUser user) {
+    public List <GameEntryResponse> getGameEntryResponse(@AuthenticationPrincipal User user) {
         return gameEntryService.getGameEntryResponse(user);
     }
 
     @PostMapping
-    public GameEntry addGameEntry(@AuthenticationPrincipal AppUser user,
+    public GameEntry addGameEntry(@AuthenticationPrincipal User user,
                                   @RequestParam long idGame,
                                   @RequestParam(required = false) Double hoursPlayed,
                                   @RequestParam(required = false) Double personalRating,
@@ -65,7 +59,7 @@ public class GameEntryController {
     }
 
     @PutMapping
-    public GameEntry editGameEntry(@AuthenticationPrincipal AppUser user,
+    public GameEntry editGameEntry(@AuthenticationPrincipal User user,
                                   @RequestParam long idGame,
                                   @RequestParam(required = false) Double hoursPlayed,
                                   @RequestParam(required = false) Double personalRating,
@@ -86,13 +80,13 @@ public class GameEntryController {
     }
 
     @DeleteMapping
-    public void deleteGameEntry(@AuthenticationPrincipal AppUser user, @RequestParam long id) {
+    public void deleteGameEntry(@AuthenticationPrincipal User user, @RequestParam long id) {
         gameEntryService.deleteGameEntry(user, id);
     }
 
     @GetMapping("{id}")
     public List<GameEntry> getUserGameEntries(@PathVariable long id) {
-        AppUser user = appUserService.findById(id);
+        User user = userService.findUserById(id);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }

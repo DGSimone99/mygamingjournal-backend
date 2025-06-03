@@ -2,7 +2,7 @@ package it.MyGamingJournal.gameEntry.gameEntry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import it.MyGamingJournal.auth.User.AppUser;
+import it.MyGamingJournal.auth.user.User;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.gameEntry.achievementEntry.AchievementEntry;
 import it.MyGamingJournal.gameEntry.enums.CompletionMode;
@@ -42,7 +42,7 @@ public class GameEntry {
     @ManyToOne
     @JoinColumn(name="user_id")
     @JsonIgnore
-    private AppUser user;
+    private User user;
 
     @Column(name = "hours_played")
     private Double hoursPlayed;
