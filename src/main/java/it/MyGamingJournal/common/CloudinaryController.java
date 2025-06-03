@@ -25,7 +25,7 @@ public class CloudinaryController {
 
         try {
             Map result = cloudinary.uploader()
-                    .upload(file.getBytes(), Cloudinary.asMap("folder", "Nome Cartella", "public_id", file.getOriginalFilename()));
+                    .upload(file.getBytes(), Cloudinary.asMap("folder", "MyGamingJournal", "public_id", file.getOriginalFilename()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
