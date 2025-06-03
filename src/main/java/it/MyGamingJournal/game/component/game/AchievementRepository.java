@@ -1,12 +1,10 @@
-package it.MyGamingJournal.game.component;
+package it.MyGamingJournal.game.component.game;
 
 
 import it.MyGamingJournal.game.entity.Achievement;
 import it.MyGamingJournal.game.entity.Game;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 

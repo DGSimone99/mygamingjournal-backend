@@ -1,5 +1,3 @@
-/*
-
 package it.MyGamingJournal.runner;
 
 import it.MyGamingJournal.rawg.RawgApiService;
@@ -18,4 +16,3 @@ public class GameBootstrap implements CommandLineRunner {
         rawgApiService.fetchAndSaveGames(1);
     }
 }
-*/

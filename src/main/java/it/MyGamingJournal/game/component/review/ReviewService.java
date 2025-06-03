@@ -1,32 +1,31 @@
-package it.MyGamingJournal.game.component;
+package it.MyGamingJournal.game.component.review;
 
 import it.MyGamingJournal.auth.user.User;
 import it.MyGamingJournal.auth.user.UserService;
+import it.MyGamingJournal.game.component.game.GameService;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.game.entity.Review;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
-    @Autowired
-    private ReviewRepository reviewRepository;
 
-    @Autowired
-    private GameRepository gameRepository;
-
-    @Autowired
-    private GameService gameService;
-
-    @Autowired
-    private UserService userService;
+    private final ReviewRepository reviewRepository;
+    private final GameService gameService;
+    private final UserService userService;
 
     public Review findById(Long id) {
-        return reviewRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Review not found with id: " + id));
     }
 
     public void saveReview(ReviewRequest reviewRequest, Long gameId, Long userId) {
@@ -50,6 +49,7 @@ public class ReviewService {
         review.setDate(LocalDate.now());
         review.setGame(game);
         review.setUser(user);
+
         reviewRepository.save(review);
     }
 
@@ -59,6 +59,14 @@ public class ReviewService {
             throw new AccessDeniedException("You can't delete a review you didn't write");
         }
         reviewRepository.deleteById(id);
+    }
+
+    public Page<ReviewResponse> getReviewsByGame(Long gameId, Pageable pageable) {
+        return reviewRepository.findByGameId(gameId, pageable).map(this::toResponse);
+    }
+
+    public Page<ReviewResponse> getReviewsByUser(Long userId, Pageable pageable) {
+        return reviewRepository.findByUserId(userId, pageable).map(this::toResponse);
     }
 
     public ReviewResponse toResponse(Review review) {

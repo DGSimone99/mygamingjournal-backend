@@ -1,27 +1,24 @@
-package it.MyGamingJournal.game.component;
+package it.MyGamingJournal.game.component.game;
 
 import it.MyGamingJournal.exceptions.GameNotFoundException;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.gameEntry.gameEntry.GameEntryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@RequiredArgsConstructor
 @Service
 public class GameService {
 
-    @Autowired
-    GameRepository gameRepository;
-
-    @Autowired
-    GameEntryRepository gameEntryRepository;
+    private final GameRepository gameRepository;
+    private final GameEntryRepository gameEntryRepository;
 
     public Game getDetailsGame(Long id) {
-        return gameRepository.findById(id).orElseThrow(() -> new GameNotFoundException(id));
+        return gameRepository.findById(id)
+                .orElseThrow(() -> new GameNotFoundException(id));
     }
 
     public Page<GameResponse> getGames(Pageable pageable) {
@@ -30,27 +27,42 @@ public class GameService {
     }
 
     public Page<GameResponse> searchGamesByName(String name, Pageable pageable) {
-        return gameRepository.findByNameContainingIgnoreCase(name, pageable)
+        if (name == null || name.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return gameRepository.findByNameContainingIgnoreCase(name.trim(), pageable)
                 .map(GameMapper::toResponse);
     }
 
     public Page<GameResponse> getGamesByGenre(String genre, Pageable pageable) {
-        return gameRepository.findByGenre(genre, pageable)
+        if (genre == null || genre.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return gameRepository.findByGenre(genre.trim(), pageable)
                 .map(GameMapper::toResponse);
     }
 
     public Page<GameResponse> getGamesByDeveloper(String developer, Pageable pageable) {
-        return gameRepository.findByDeveloper(developer, pageable)
+        if (developer == null || developer.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return gameRepository.findByDeveloper(developer.trim(), pageable)
                 .map(GameMapper::toResponse);
     }
 
     public Page<GameResponse> getGamesByTag(String tag, Pageable pageable) {
-        return gameRepository.findByTag(tag, pageable)
+        if (tag == null || tag.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return gameRepository.findByTag(tag.trim(), pageable)
                 .map(GameMapper::toResponse);
     }
 
     public Page<GameResponse> searchGamesByQuery(String query, Pageable pageable) {
-        return gameRepository.findByAllFields(query.toLowerCase(), pageable)
+        if (query == null || query.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+        return gameRepository.findByAllFields(query.trim().toLowerCase(), pageable)
                 .map(GameMapper::toResponse);
     }
 

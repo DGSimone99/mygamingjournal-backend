@@ -26,7 +26,8 @@ public class RawgRelatedGamesResponse {
         @JsonProperty("background_image")
         private String backgroundImage;
 
-        private List<Platforms> platforms;
+        @JsonProperty("parent_platforms")
+        private List<Platforms> parentPlatforms;
 
         @Data
         @JsonIgnoreProperties(ignoreUnknown = true)

@@ -1,6 +1,7 @@
-package it.MyGamingJournal.game.component;
+package it.MyGamingJournal.game.component.game;
 
 import it.MyGamingJournal.game.entity.Game;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,12 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
 
-    @Autowired
-    GameService gameService;
+    final GameService gameService;
 
     @GetMapping
     public Page<GameResponse> getGames(

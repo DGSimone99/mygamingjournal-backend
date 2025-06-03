@@ -1,4 +1,4 @@
-package it.MyGamingJournal.game.component;
+package it.MyGamingJournal.game.component.review;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

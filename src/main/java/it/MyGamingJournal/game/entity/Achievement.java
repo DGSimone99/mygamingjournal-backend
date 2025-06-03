@@ -9,23 +9,24 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "achievements")
-
 public class Achievement {
     @Id
     private Long id;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String name;
+
     @Column(length = 1000)
     private String description;
+
     @Column(length = 512)
     private String image;
 
-    @Column(name = "average_percentage")
+    @Column(name = "average_percentage", nullable = false)
     private double averagePercentage;
 
-    @ManyToOne
-    @JoinColumn(name="game_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", nullable = false)
     @JsonBackReference
     private Game game;
 }

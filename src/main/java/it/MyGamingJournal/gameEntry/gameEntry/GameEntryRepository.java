@@ -64,6 +64,8 @@ public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
             Pageable pageable
     );
 
+    @Query("SELECT g.game.id FROM GameEntry g WHERE g.user = :user")
+    List<Long> findAllGameIdsByUser(@Param("user") User user);
 
 
 }

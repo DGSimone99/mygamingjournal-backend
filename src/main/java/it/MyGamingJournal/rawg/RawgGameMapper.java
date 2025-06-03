@@ -1,10 +1,11 @@
 package it.MyGamingJournal.rawg;
 
 
+import it.MyGamingJournal.game.component.game.GameResponse;
 import it.MyGamingJournal.game.entity.Achievement;
 import it.MyGamingJournal.game.entity.Game;
 import it.MyGamingJournal.game.entity.DeveloperMember;
-import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
+import it.MyGamingJournal.game.entity.RelatedGame;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RawgGameMapper {
-    public static Game toEntity(RawgGameDto rawgGameDto, RawgDetailsData details, List<Game.ParentGame> parentGames, List<Game.RelatedGame> relatedGames, List<Game.Dlc> dlc, List<Achievement> achievements, List<DeveloperMember> developmentTeam) {
+    public static Game toEntity(RawgGameDto rawgGameDto, RawgDetailsData details, List<RelatedGame> parentGames, List<RelatedGame> relatedGames, List<RelatedGame> dlc, List<Achievement> achievements, List<DeveloperMember> developmentTeam) {
         Game game = new Game();
 
         game.setId(rawgGameDto.getId());
@@ -77,8 +78,8 @@ public class RawgGameMapper {
                             game.setMinimumRequirements(platformData.getRequirements().getMinimum());
                             game.setRecommendedRequirements(platformData.getRequirements().getRecommended());
                         } else {
-                            game.setMinimumRequirements("Nessun requisito minimo consigliato");
-                            game.setRecommendedRequirements("Nessun requisito raccomandato consigliato");
+                            game.setMinimumRequirements("No minimum requirements recommended");
+                            game.setRecommendedRequirements("No recommended requirements");
                         }
                     }
                 }

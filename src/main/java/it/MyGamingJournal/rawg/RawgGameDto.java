@@ -28,8 +28,11 @@ public class RawgGameDto {
         private String name;
     }
 
-    @JsonProperty("platforms")
+    @JsonProperty("parent_platforms")
     private List<ParentPlatform> parentPlatforms;
+
+    @JsonProperty("platforms")
+    private List<ParentPlatform> platforms;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)

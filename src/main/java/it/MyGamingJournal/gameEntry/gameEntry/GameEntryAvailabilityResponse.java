@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,15 +14,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameEntryAvailabilityResponse {
-    private long gameEntryId;
+    private Long gameEntryId;
     private String gameName;
     private String gameBackgroundImage;
 
     private String userDisplayName;
     private String userAvatarUrl;
-    private long userId;
+    private Long userId;
 
     private LocalDate availableUntil;
-    private Set<String> availablePlatforms;
-    private List<String> availableLanguages;
+    private Set<String> availablePlatforms = new HashSet<>();
+    private List<String> availableLanguages = new ArrayList<>();
 }

@@ -1,9 +1,11 @@
 package it.MyGamingJournal.rawg;
 
+import it.MyGamingJournal.game.component.game.GameResponse;
 import it.MyGamingJournal.game.entity.Achievement;
 import it.MyGamingJournal.game.entity.Game;
-import it.MyGamingJournal.game.component.GameRepository;
+import it.MyGamingJournal.game.component.game.GameRepository;
 import it.MyGamingJournal.game.entity.DeveloperMember;
+import it.MyGamingJournal.game.entity.RelatedGame;
 import it.MyGamingJournal.rawg.achievements.RawgAchievementMapper;
 import it.MyGamingJournal.rawg.achievements.RawgAchievementsResponse;
 import it.MyGamingJournal.rawg.developers.RawgDevelopersMapper;
@@ -46,44 +48,47 @@ public class RawgApiService {
                             RawgDetailsData data = fetchDevelopersById(dto.getId());
                             List<Achievement> achievements = fetchAllAchievementsForGame(dto.getId());
                             List<DeveloperMember> developmentTeam = fetchDeveloperTeamById(dto.getId());
-                            List<Game.ParentGame> parentGames = fetchParentById(dto.getId())
+                            List<RelatedGame> parentGames = fetchParentById(dto.getId())
                                     .stream()
-                                    .map(parentGame -> new Game.ParentGame(
-                                            parentGame.getId(),
-                                            parentGame.getName(),
-                                            parentGame.getSlug(),
-                                            parentGame.getReleased(),
-                                            parentGame.getBackgroundImage(),
-                                            parentGame.getPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName())  // oppure getSlug() o getId()
-                                                    .collect(Collectors.toList())
-                                    ))
+                                    .map(parentGame -> RelatedGame.builder()
+                                            .id(parentGame.getId())
+                                            .name(parentGame.getName())
+                                            .slug(parentGame.getSlug())
+                                            .released(parentGame.getReleased())
+                                            .backgroundImage(parentGame.getBackgroundImage())
+                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
+                                                    .map(pw -> pw.getPlatform().getName())
+                                                    .collect(Collectors.toList()))
+                                            .build()
+                                    )
                                     .collect(Collectors.toList());
-                            List<Game.RelatedGame> relatedGames = fetchRelatedById(dto.getId())
+                            List<RelatedGame> relatedGames = fetchRelatedById(dto.getId())
                                     .stream()
-                                    .map(relatedGame -> new Game.RelatedGame(
-                                            relatedGame.getId(),
-                                            relatedGame.getName(),
-                                            relatedGame.getSlug(),
-                                            relatedGame.getReleased(),
-                                            relatedGame.getBackgroundImage(),
-                                            relatedGame.getPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName())  // oppure getSlug() o getId()
-                                                    .collect(Collectors.toList())
-                                    ))
+                                    .map(parentGame -> RelatedGame.builder()
+                                            .id(parentGame.getId())
+                                            .name(parentGame.getName())
+                                            .slug(parentGame.getSlug())
+                                            .released(parentGame.getReleased())
+                                            .backgroundImage(parentGame.getBackgroundImage())
+                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
+                                                    .map(pw -> pw.getPlatform().getName())
+                                                    .collect(Collectors.toList()))
+                                            .build()
+                                    )
                                     .collect(Collectors.toList());
-                            List<Game.Dlc> dlc = fetchDlcById(dto.getId())
+                            List<RelatedGame> dlc = fetchDlcById(dto.getId())
                                     .stream()
-                                    .map(dlcGame -> new Game.Dlc(
-                                            dlcGame.getId(),
-                                            dlcGame.getName(),
-                                            dlcGame.getSlug(),
-                                            dlcGame.getReleased(),
-                                            dlcGame.getBackgroundImage(),
-                                            dlcGame.getPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName()) // o .getSlug() / .getId()
-                                                    .collect(Collectors.toList())
-                                    ))
+                                    .map(parentGame -> RelatedGame.builder()
+                                            .id(parentGame.getId())
+                                            .name(parentGame.getName())
+                                            .slug(parentGame.getSlug())
+                                            .released(parentGame.getReleased())
+                                            .backgroundImage(parentGame.getBackgroundImage())
+                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
+                                                    .map(pw -> pw.getPlatform().getName())
+                                                    .collect(Collectors.toList()))
+                                            .build()
+                                    )
                                     .collect(Collectors.toList());
                             return RawgGameMapper.toEntity(dto, data, parentGames, relatedGames, dlc, achievements, developmentTeam);
                         })

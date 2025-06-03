@@ -2,27 +2,27 @@ package it.MyGamingJournal.gameEntry.gameEntry;
 
 import it.MyGamingJournal.auth.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
+
+@RequiredArgsConstructor
 @RestController
+@PreAuthorize("isAuthenticated()")
 @RequestMapping("/api/availability")
 public class GameEntryAvailabilityController {
-    @Autowired
-    private GameEntryService gameEntryService;
+    private final GameEntryAvailabilityService gameEntryAvailabilityService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private GameEntryRepository gameEntryRepository;
-
-
+    private final GameEntryRepository gameEntryRepository;
 
     @GetMapping("/{gameId}/available-players")
     public Page<GameEntryAvailabilityResponse> getAvailablePlayers(
@@ -31,14 +31,12 @@ public class GameEntryAvailabilityController {
             @RequestParam(required = false) Set<String> platforms,
             @PageableDefault(size = 10, sort = "availableUntil", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<GameEntryAvailabilityResponse> result = gameEntryService.getAvailablePlayers(
+        return gameEntryAvailabilityService.getAvailablePlayers(
                 gameId,
                 languages,
                 platforms,
                 pageable
         );
-
-        return result;
     }
 
     @PutMapping("/{gameEntryId}")
@@ -46,8 +44,6 @@ public class GameEntryAvailabilityController {
             @PathVariable Long gameEntryId,
             @RequestBody @Valid GameEntryAvailabilityUpdateRequest request) {
 
-        gameEntryService.updateAvailability(gameEntryId, request);
+        gameEntryAvailabilityService.updateAvailability(gameEntryId, request);
     }
-
-
 }
