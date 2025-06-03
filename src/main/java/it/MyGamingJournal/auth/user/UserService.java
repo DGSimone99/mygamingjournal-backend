@@ -1,5 +1,7 @@
 package it.MyGamingJournal.auth.user;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import it.MyGamingJournal.auth.user.mapper.UserMapper;
 import it.MyGamingJournal.auth.user.userRequests.UserBioRequest;
 import it.MyGamingJournal.auth.user.userRequests.UserContactsRequest;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -27,6 +30,7 @@ public class UserService {
     private final GameEntryRepository gameEntryRepository;
     private final UserMapper userMapper;
     private final LevelingSystem levelingSystem;
+    private final Cloudinary cloudinary;
 
     public User findUserById(Long userId) {
         return userRepository.findByIdWithGameEntries(userId)
@@ -148,6 +152,22 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public String uploadUserAvatar(Long userId, MultipartFile file) {
+        User user = findUserById(userId);
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "avatars"));
+            String avatarUrl = uploadResult.get("secure_url").toString();
+
+            user.setAvatarUrl(avatarUrl);
+            userRepository.save(user);
+
+            return avatarUrl;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload avatar", e);
+        }
+    }
+
 
     //FRIENDS
     public User findUserByIdWithFriends(Long userId) {
@@ -177,4 +197,5 @@ public class UserService {
 
         return friendsPage.map(userMapper::toUserBasicInfoResponse);
     }
+
 }
