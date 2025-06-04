@@ -23,6 +23,7 @@ public class GameController {
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) String tags,
             @RequestParam(required = false) String developers,
+            @RequestParam(required = false) String type,
             @RequestParam(defaultValue = "-released") String order,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "18") int size) {
@@ -30,6 +31,10 @@ public class GameController {
         String sortBy = order.replace("-", "");
         Sort.Direction direction = order.startsWith("-") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+         if ("coming".equals(type)) {
+            return gameService.getComingSoonGames(pageable);
+        }
 
         if (genre != null && !genre.isEmpty()) {
             genre = genre.replace("-", " ").toLowerCase();
@@ -54,6 +59,7 @@ public class GameController {
 
         return gameService.getGames(pageable);
     }
+
 
     @GetMapping("/details/{id}")
     public Game getGame(@PathVariable Long id) {

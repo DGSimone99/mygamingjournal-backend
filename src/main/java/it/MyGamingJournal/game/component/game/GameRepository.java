@@ -46,4 +46,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     void updateStatsById(@Param("id") Long id,
                          @Param("added") int added,
                          @Param("rating") double rating);
+
+    @Query("SELECT g FROM Game g WHERE g.released > CURRENT_DATE ORDER BY g.released ASC")
+    Page<Game> findByReleasedAfterNowOrderByReleasedAsc(Pageable pageable);
+
 }

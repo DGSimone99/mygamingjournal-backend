@@ -73,4 +73,8 @@ public class GameService {
         if (rating == null) rating = 0.0;
         gameRepository.updateStatsById(game.getId(), added, rating);
     }
+
+   public Page<GameResponse> getComingSoonGames(Pageable pageable) {
+        return gameRepository.findByReleasedAfterNowOrderByReleasedAsc(pageable).map(GameMapper::toResponse);
+    }
 }

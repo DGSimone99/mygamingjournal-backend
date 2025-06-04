@@ -1,3 +1,4 @@
+/*
 
 package it.MyGamingJournal.auth.auth;
 
@@ -64,3 +65,4 @@ public class AuthRunner implements ApplicationRunner {
         authService.registerUser(user5);
     }
 }
+*/

@@ -24,6 +24,6 @@ public class UserContactsRequest {
     @Size(max = 32)
     private String riotId;
 
-    @Pattern(regexp = "^.{2,32}#[0-9]{4}$", message = "Invalid Discord tag format. Example: User#1234")
+    @Size(max = 32)
     private String discordTag;
 }
