@@ -110,6 +110,23 @@ public class UserService {
         );
     }
 
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<User> allUsers = userRepository.findAll();
+        for (User u : allUsers) {
+            u.getFriends().remove(user);
+        }
+        userRepository.saveAll(allUsers);
+
+        user.getFriends().clear();
+        userRepository.save(user);
+
+        userRepository.delete(user);
+    }
+
+
     //UPDATES
     public void updateDisplayName(Long userId, UserNameRequest request) {
         User user = findUserById(userId);

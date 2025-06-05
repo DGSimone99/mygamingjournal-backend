@@ -79,7 +79,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("isAuthenticated()")
     public void deleteAccount(@AuthenticationPrincipal User user) {
-        userRepository.delete(user);
+        userService.deleteUser(user.getId());
     }
 
     @PutMapping("/me/display-name")

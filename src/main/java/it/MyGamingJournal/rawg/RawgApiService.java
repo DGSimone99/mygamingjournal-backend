@@ -33,72 +33,94 @@ public class RawgApiService {
 
     public void fetchAndSaveGames(int totalPages) {
         for (int page = 1; page <= totalPages; page++) {
-            String url = "https://api.rawg.io/api/games?page=" + page +
-                    "&page_size=20" +
-                    "&ordering=-added" +
-                    "&dates=2020-05-29,2026-05-29&key=" + rawgApiKey;
+            String url = "https://api.rawg.io/api/games?page=" + page + "&page_size=40&search=zelda&key=2e814586e02a41c783ed042617fd6dc3";
+
+            try {
+                RawgGameListResponse rawgGameListResponse = restTemplate.getForObject(url, RawgGameListResponse.class);
+
+                if (rawgGameListResponse != null && rawgGameListResponse.getResults() != null) {
+                    List<Game> gamesToSave = new ArrayList<>();
 
 
-            RawgGameListResponse rawgGameListReponse = restTemplate.getForObject(url, RawgGameListResponse.class);
+                    for (RawgGameDto dto : rawgGameListResponse.getResults()) {
+                        /*String name = dto.getName().toLowerCase();
+                        if (!name.contains("metal gear")) {
+                            System.out.println("Scartato (non RE): " + dto.getName());
+                            continue;
+                        }*/
+                       try {
+                                RawgDetailsData data = fetchDevelopersById(dto.getId());
+                                List<Achievement> achievements = fetchAllAchievementsForGame(dto.getId());
+                                List<DeveloperMember> developmentTeam = fetchDeveloperTeamById(dto.getId());
 
-            if (rawgGameListReponse != null && rawgGameListReponse.getResults() != null) {
-                List<Game> gamesToSave = rawgGameListReponse.getResults().stream()
-                        .filter(game -> game.getBackgroundImage() != null && game.getRating() >= 2 && game.getParentPlatforms() != null)
-                        .map(dto -> {
-                            RawgDetailsData data = fetchDevelopersById(dto.getId());
-                            List<Achievement> achievements = fetchAllAchievementsForGame(dto.getId());
-                            List<DeveloperMember> developmentTeam = fetchDeveloperTeamById(dto.getId());
-                            List<RelatedGame> parentGames = fetchParentById(dto.getId())
-                                    .stream()
-                                    .map(parentGame -> RelatedGame.builder()
-                                            .id(parentGame.getId())
-                                            .name(parentGame.getName())
-                                            .slug(parentGame.getSlug())
-                                            .released(parentGame.getReleased())
-                                            .backgroundImage(parentGame.getBackgroundImage())
-                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName())
-                                                    .collect(Collectors.toList()))
-                                            .build()
-                                    )
-                                    .collect(Collectors.toList());
-                            List<RelatedGame> relatedGames = fetchRelatedById(dto.getId())
-                                    .stream()
-                                    .map(parentGame -> RelatedGame.builder()
-                                            .id(parentGame.getId())
-                                            .name(parentGame.getName())
-                                            .slug(parentGame.getSlug())
-                                            .released(parentGame.getReleased())
-                                            .backgroundImage(parentGame.getBackgroundImage())
-                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName())
-                                                    .collect(Collectors.toList()))
-                                            .build()
-                                    )
-                                    .collect(Collectors.toList());
-                            List<RelatedGame> dlc = fetchDlcById(dto.getId())
-                                    .stream()
-                                    .map(parentGame -> RelatedGame.builder()
-                                            .id(parentGame.getId())
-                                            .name(parentGame.getName())
-                                            .slug(parentGame.getSlug())
-                                            .released(parentGame.getReleased())
-                                            .backgroundImage(parentGame.getBackgroundImage())
-                                            .parentPlatforms(parentGame.getParentPlatforms().stream()
-                                                    .map(pw -> pw.getPlatform().getName())
-                                                    .collect(Collectors.toList()))
-                                            .build()
-                                    )
-                                    .collect(Collectors.toList());
-                            return RawgGameMapper.toEntity(dto, data, parentGames, relatedGames, dlc, achievements, developmentTeam);
-                        })
-                        .collect(Collectors.toList());
+                                List<RelatedGame> parentGames = fetchParentById(dto.getId()).stream()
+                                        .map(parentGame -> RelatedGame.builder()
+                                                .id(parentGame.getId())
+                                                .name(parentGame.getName())
+                                                .slug(parentGame.getSlug())
+                                                .released(parentGame.getReleased())
+                                                .backgroundImage(parentGame.getBackgroundImage())
+                                                .parentPlatforms(parentGame.getParentPlatforms().stream()
+                                                        .map(pw -> pw.getPlatform().getName())
+                                                        .collect(Collectors.toList()))
+                                                .build())
+                                        .collect(Collectors.toList());
 
-                gameRepository.saveAll(gamesToSave);
-                System.out.println("Pagina " + page + ": salvati " + gamesToSave.size() + " giochi.");
+                                List<RelatedGame> relatedGames = fetchRelatedById(dto.getId()).stream()
+                                        .map(related -> RelatedGame.builder()
+                                                .id(related.getId())
+                                                .name(related.getName())
+                                                .slug(related.getSlug())
+                                                .released(related.getReleased())
+                                                .backgroundImage(related.getBackgroundImage())
+                                                .parentPlatforms(related.getParentPlatforms().stream()
+                                                        .map(pw -> pw.getPlatform().getName())
+                                                        .collect(Collectors.toList()))
+                                                .build())
+                                        .collect(Collectors.toList());
+
+                                List<RelatedGame> dlc = fetchDlcById(dto.getId()).stream()
+                                        .map(dlcGame -> RelatedGame.builder()
+                                                .id(dlcGame.getId())
+                                                .name(dlcGame.getName())
+                                                .slug(dlcGame.getSlug())
+                                                .released(dlcGame.getReleased())
+                                                .backgroundImage(dlcGame.getBackgroundImage())
+                                                .parentPlatforms(dlcGame.getParentPlatforms().stream()
+                                                        .map(pw -> pw.getPlatform().getName())
+                                                        .collect(Collectors.toList()))
+                                                .build())
+                                        .collect(Collectors.toList());
+
+                                Game gameEntity = RawgGameMapper.toEntity(dto, data, parentGames, relatedGames, dlc, achievements, developmentTeam);
+                                gamesToSave.add(gameEntity);
+                           System.out.println("Elaboro: " + dto.getName());
+                                Thread.sleep(1000);
+
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                System.err.println("Sleep interrotto tra giochi: " + e.getMessage());
+                            } catch (Exception e) {
+                                System.err.println("Errore durante il parsing del gioco con ID " + dto.getId() + ": " + e.getMessage());
+                            }
+                        }
+
+
+                    gameRepository.saveAll(gamesToSave);
+                    System.out.println("Pagina " + page + ": salvati " + gamesToSave.size() + " giochi.");
+                }
+
+                Thread.sleep(1000);
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Sleep interrotto tra pagine: " + e.getMessage());
+            } catch (Exception ex) {
+                System.err.println("Errore nella pagina " + page + ": " + ex.getMessage());
             }
         }
     }
+
 
     private RawgDetailsData fetchDevelopersById(Long gameId) {
         String url = "https://api.rawg.io/api/games/" + gameId + "?key=" + rawgApiKey;

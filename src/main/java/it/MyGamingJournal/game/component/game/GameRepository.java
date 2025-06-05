@@ -22,7 +22,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     Page<Game> findByTag(@Param("tag") String tag, Pageable pageable);
 
     @Query("""
-    SELECT g FROM Game g
+    SELECT DISTINCT g FROM Game g
     LEFT JOIN g.developers dev
     LEFT JOIN g.publishers pub
     LEFT JOIN g.genres genre
@@ -30,16 +30,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
        OR LOWER(dev) LIKE LOWER(CONCAT('%', :query, '%'))
        OR LOWER(pub) LIKE LOWER(CONCAT('%', :query, '%'))
        OR LOWER(genre) LIKE LOWER(CONCAT('%', :query, '%'))
-    ORDER BY
-       CASE
-           WHEN LOWER(g.name) LIKE CONCAT('%', LOWER(:query), '%') THEN 1
-           WHEN LOWER(dev) LIKE CONCAT('%', LOWER(:query), '%') THEN 2
-           WHEN LOWER(pub) LIKE CONCAT('%', LOWER(:query), '%') THEN 3
-           WHEN LOWER(genre) LIKE CONCAT('%', LOWER(:query), '%') THEN 4
-           ELSE 5
-       END
     """)
     Page<Game> findByAllFields(@Param("query") String query, Pageable pageable);
+
 
     @Modifying
     @Query("UPDATE Game g SET g.added = :added, g.rating = :rating WHERE g.id = :id")

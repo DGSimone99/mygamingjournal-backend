@@ -61,6 +61,7 @@ public class GameEntryController {
         return GameEntryMapper.toResponse(updatedEntry);
     }
 
+    @DeleteMapping("/{gameEntryId}")
     public void deleteGameEntry(
             @AuthenticationPrincipal User user,
             @PathVariable long gameEntryId) {

@@ -9,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/games")
@@ -28,11 +31,28 @@ public class GameController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "18") int size) {
 
-        String sortBy = order.replace("-", "");
-        Sort.Direction direction = order.startsWith("-") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Sort sort = Sort.unsorted();
+        if (order != null && !order.isBlank()) {
+            String[] fields = order.split(",");
+            List<Sort.Order> orders = new ArrayList<>();
 
-         if ("coming".equals(type)) {
+            for (String field : fields) {
+                field = field.trim();
+                if (!field.isEmpty()) {
+                    Sort.Direction dir = field.startsWith("-") ? Sort.Direction.DESC : Sort.Direction.ASC;
+                    String property = field.replace("-", "");
+                    orders.add(new Sort.Order(dir, property));
+                }
+            }
+
+            if (!orders.isEmpty()) {
+                sort = Sort.by(orders);
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        if ("coming".equals(type)) {
             return gameService.getComingSoonGames(pageable);
         }
 
@@ -59,6 +79,7 @@ public class GameController {
 
         return gameService.getGames(pageable);
     }
+
 
 
     @GetMapping("/details/{id}")

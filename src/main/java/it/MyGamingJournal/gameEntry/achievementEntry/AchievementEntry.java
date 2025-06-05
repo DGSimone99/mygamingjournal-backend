@@ -19,7 +19,7 @@ public class AchievementEntry {
     @Column(nullable = false, name = "achievement_id")
     private Long achievementId;
 
-    @Column(length = 150, nullable = false)
+    @Column(length = 255, nullable = false)
     private String name;
 
     @Column(length = 1000)
