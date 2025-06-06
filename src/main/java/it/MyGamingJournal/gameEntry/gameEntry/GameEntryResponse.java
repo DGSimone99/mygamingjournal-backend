@@ -12,6 +12,7 @@ import lombok.Data;
 import it.MyGamingJournal.gameEntry.enums.GameStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,8 @@ public class GameEntryResponse {
     private Double hoursPlayed;
     private Double personalRating;
     private GameStatus status;
+
+    private LocalDateTime addedAt;
 
     private String notes;
 

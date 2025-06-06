@@ -55,6 +55,9 @@ public class GameController {
         if ("coming".equals(type)) {
             return gameService.getComingSoonGames(pageable);
         }
+        if ("-coming".equals(type)) {
+            return gameService.getGamesExcludingComingSoon(pageable);
+        }
 
         if (genre != null && !genre.isEmpty()) {
             genre = genre.replace("-", " ").toLowerCase();

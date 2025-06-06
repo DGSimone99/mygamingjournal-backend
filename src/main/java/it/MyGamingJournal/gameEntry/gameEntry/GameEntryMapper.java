@@ -52,6 +52,7 @@ public class GameEntryMapper {
                 .status(gameEntry.getStatus())
                 .notes(gameEntry.getNotes())
                 .achievements(achievementResponses)
+                .addedAt(gameEntry.getAddedAt())
                 .availableToPlay(gameEntry.isAvailableToPlay())
                 .availableLanguages(gameEntry.getAvailableLanguages())
                 .availablePlatforms(gameEntry.getAvailablePlatforms())

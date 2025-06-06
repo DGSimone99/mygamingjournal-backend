@@ -43,4 +43,11 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.released > CURRENT_DATE ORDER BY g.released ASC")
     Page<Game> findByReleasedAfterNowOrderByReleasedAsc(Pageable pageable);
 
+    @Query("""
+    SELECT g FROM Game g
+    WHERE g.released IS NOT NULL
+      AND g.released <= CURRENT_DATE
+    ORDER BY g.released DESC
+    """)
+    Page<Game> findNonComingSoonGames(Pageable pageable);
 }

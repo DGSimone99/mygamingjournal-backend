@@ -38,7 +38,6 @@ public class UserController {
         return userService.getAllUsers(page, size, query);
     }
 
-
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserFullProfileResponse> getMyFullProfile(@AuthenticationPrincipal User user) {

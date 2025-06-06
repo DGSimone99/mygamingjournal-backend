@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,6 +86,7 @@ public class GameEntryService {
                 .collect(Collectors.toList());
 
         gameEntry.setAchievements(achievementEntries);
+        gameEntry.setAddedAt(LocalDateTime.now());
 
         GameEntry savedEntry = gameEntryRepository.save(gameEntry);
 
@@ -127,5 +129,13 @@ public class GameEntryService {
 
     public List<Long> getGameEntryIdsByUser(User user) {
         return gameEntryRepository.findAllGameIdsByUser(user);
+    }
+
+    public GameEntry getLastAddedEntry(Long userId) {
+        return gameEntryRepository.findTopByUserIdOrderByAddedAtDesc(userId);
+    }
+
+    public GameEntry getMostPlayedEntry(Long userId) {
+        return gameEntryRepository.findTopByUserIdOrderByHoursPlayedDesc(userId);
     }
 }

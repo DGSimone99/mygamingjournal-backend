@@ -53,9 +53,11 @@ public class UserService {
 
     public UserFullProfileResponse getFullProfile(Long userId) {
         User user = findUserById(userId);
+        GameEntry lastEntry = gameEntryRepository.findTopByUserIdOrderByAddedAtDesc(userId);
+        GameEntry mostPlayed = gameEntryRepository.findTopByUserIdOrderByHoursPlayedDesc(userId);
         UserStatsResponse stats = getUserStats(user.getId());
 
-        return userMapper.toUserFullProfileResponse(user, stats);
+        return userMapper.toUserFullProfileResponse(user, stats, lastEntry, mostPlayed);
     }
 
     public UserSettingsProfileResponse getSettingsProfile(Long userId) {

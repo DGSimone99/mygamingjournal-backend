@@ -76,5 +76,10 @@ public class GameService {
 
    public Page<GameResponse> getComingSoonGames(Pageable pageable) {
         return gameRepository.findByReleasedAfterNowOrderByReleasedAsc(pageable).map(GameMapper::toResponse);
+   }
+
+    public Page<GameResponse> getGamesExcludingComingSoon(Pageable pageable) {
+        return gameRepository.findNonComingSoonGames(pageable)
+                .map(GameMapper::toResponse);
     }
 }

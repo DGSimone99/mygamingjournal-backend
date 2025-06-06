@@ -67,5 +67,8 @@ public interface GameEntryRepository extends JpaRepository<GameEntry, Long> {
     @Query("SELECT g.game.id FROM GameEntry g WHERE g.user = :user")
     List<Long> findAllGameIdsByUser(@Param("user") User user);
 
+    GameEntry findTopByUserIdOrderByAddedAtDesc(Long userId);
+
+    GameEntry findTopByUserIdOrderByHoursPlayedDesc(Long userId);
 
 }

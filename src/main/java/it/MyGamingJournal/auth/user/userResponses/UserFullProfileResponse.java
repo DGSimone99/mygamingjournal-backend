@@ -1,5 +1,6 @@
 package it.MyGamingJournal.auth.user.userResponses;
 
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntryResponse;
 import lombok.Builder;
 import lombok.Data;
 
@@ -32,5 +33,8 @@ public class UserFullProfileResponse {
     private long unlockedAchievements;
     private int level;
     private int experience;
+
+    private GameEntryResponse lastAddedGame;
+    private GameEntryResponse mostPlayedGame;
 }
 

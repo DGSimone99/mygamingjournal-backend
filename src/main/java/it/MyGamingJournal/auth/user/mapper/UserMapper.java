@@ -2,6 +2,9 @@ package it.MyGamingJournal.auth.user.mapper;
 
 import it.MyGamingJournal.auth.user.User;
 import it.MyGamingJournal.auth.user.userResponses.*;
+import it.MyGamingJournal.game.component.game.GameMapper;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntry;
+import it.MyGamingJournal.gameEntry.gameEntry.GameEntryMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -48,7 +51,7 @@ public class UserMapper {
                 .build();
     }
 
-    public UserFullProfileResponse toUserFullProfileResponse(User user, UserStatsResponse userStatsResponse) {
+    public UserFullProfileResponse toUserFullProfileResponse(User user, UserStatsResponse userStatsResponse, GameEntry last, GameEntry most) {
         return UserFullProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -68,6 +71,9 @@ public class UserMapper {
 
                 .totalGames(userStatsResponse.getTotalGames())
                 .totalHoursPlayed(userStatsResponse.getTotalHoursPlayed())
+
+                .lastAddedGame(last != null ? GameEntryMapper.toResponse(last) : null)
+                .mostPlayedGame(most != null ? GameEntryMapper.toResponse(most) : null)
                 .completedGamesCount(userStatsResponse.getCompletedGamesCount())
                 .wishlistedGamesCount(userStatsResponse.getWishlistedGamesCount())
                 .unlockedAchievements(userStatsResponse.getUnlockedAchievements())

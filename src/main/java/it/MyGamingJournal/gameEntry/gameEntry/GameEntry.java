@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,8 @@ public class GameEntry {
     @Column(nullable = false)
     private GameStatus status;
 
+    @Column(name = "added_at", updatable = false, nullable = false)
+    private LocalDateTime addedAt;
 
     @Column(name = "available_to_play")
     private boolean availableToPlay = false;

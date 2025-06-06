@@ -9,3 +9,4 @@ Backend
 Spring Boot, Spring Security, JWT, JPA, integrazione con API RAWG
 
 Link alla repository frontend: https://github.com/DGSimone99/mygamingjournal-frontend
+c
