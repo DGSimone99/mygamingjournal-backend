@@ -1,12 +1,34 @@
-MyGamingJournal è una web app che permette agli utenti di tenere traccia dei videogiochi che giocano, vorrebbero giocare o hanno completato. Ogni utente può creare la propria libreria personale, con possibilità di dare voti personali o recensioni, inserire le proprie statistiche di gioco, tenere traccia di trofei e altro.
-Consente inoltre di cercare gente con cui giocare impostando le proprie preferenze e dati di varie piattaforme.,
+# 🗄️ MyGamingJournal - Backend
 
-Tecnologie usate
-Frontend
-React, Redux, React-Bootstrap, Axios, React Router
+Backend del progetto **MyGamingJournal**, una web app che permette agli utenti di gestire la propria libreria videoludica, monitorare progressi, statistiche e trofei, e trovare altri giocatori in base a preferenze condivise.
 
-Backend
-Spring Boot, Spring Security, JWT, JPA, integrazione con API RAWG
+🔗 Frontend repository: [mygamingjournal-frontend](https://github.com/DGSimone99/mygamingjournal-frontend)
 
-Link alla repository frontend: https://github.com/DGSimone99/mygamingjournal-frontend
-c
+---
+
+## ⚙️ Tecnologie utilizzate
+
+- Spring Boot
+- Spring Security + JWT
+- JPA (Hibernate)
+- PostgreSQL
+- Integrazione con [RAWG Video Games Database API](https://rawg.io/apidocs)
+
+---
+
+## 🧠 Funzionalità principali del backend
+
+- Autenticazione e registrazione con JWT
+- Gestione utenti e profili pubblici
+- CRUD completo per giochi personali
+- Sistema di voto, recensione, ore giocate e obiettivi
+- Matchmaking in base a lingua e piattaforma
+- Livellamento utente in base all’attività
+- Integrazione con RAWG per dati e immagini gioco
+
+---
+
+- Integrazione con l’API RAWG per il recupero di informazioni videoludiche (titolo, descrizione, copertine, trofei, ecc.)
+- Sistema di mapping interno che trasforma i dati esterni in oggetti persistenti del database locale così da garantire una navigazione rapida
+
+Integrazione con [RAWG Video Games Database API](https://rawg.io/apidocs)
